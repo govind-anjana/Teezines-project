@@ -1,5 +1,5 @@
 import express from "express";
-import ConnectionData from "./config/db.js";
+import ConnectionData from "../src/config/Db.js";
 import app from './app.js'
 const PORT = process.env.PORT || 8000;
 ConnectionData();
