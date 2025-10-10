@@ -7,6 +7,16 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+ export const GetUser = async (req, res) => {
+  try {
+    const data = await User.find();
+    if (!data.length) return res.status(404).json({ message: "No users found" });
+    res.status(200).json({ message: "All users", data });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 /**
  * User Login
  */

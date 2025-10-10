@@ -14,13 +14,16 @@ const Login = () => {
     try {
       const res = await axios.post("http://localhost:8000/auth/login", { email, password });
       // Store JWT token
-      localStorage.setItem("userToken", res.data.token);
+      // console.log(res.data)
+      alert(res.data.message)
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      // localStorage.setItem("userToken", res.data);
 
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">

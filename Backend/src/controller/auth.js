@@ -82,6 +82,8 @@ export const register = async (req, res) => {
   }
 };
 
+
+   
 // Verify OTP controller
 export const VerifyOtp = async (req, res) => {
   try {

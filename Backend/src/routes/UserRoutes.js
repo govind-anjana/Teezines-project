@@ -2,13 +2,13 @@
 import express from 'express';
 
 // Import controller functions
-import { UpdatePassword, UpdateProfile, UserLogin } from '../controller/authController.js';
+import { GetUser, UpdatePassword, UpdateProfile, UserLogin } from '../controller/authController.js';
 import { register,  VerifyOtp } from '../controller/auth.js';
-import { GetProducts } from '../controller/ProductController.js';
-import { BannerAll } from '../controller/BannerController.js';
 
 // Create a router instance
 const router = express.Router();
+//User All Data
+router.get("/",GetUser);
 
 // User Register route
 router.post("/register", register);

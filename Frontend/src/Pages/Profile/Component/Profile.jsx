@@ -13,23 +13,24 @@ const UpdateProfile = () => {
   const [error, setError] = useState("");
 
   
-  // useEffect(() => {
-  //     const token = localStorage.getItem("userToken");
-  //   if (token) {
-  //     try {
-  //       const payload = JSON.parse(atob(token.split(".")[1]));
-  //       console.log(payload.username, payload.email);
-  //       setFormData({
-  //         username: payload.username || "",
-  //         email: payload.email || "",
-  //         phone: payload.phone || "",
-  //         address: payload.address || "",
-  //       });
-  //     } catch (err) {
-  //       console.error("Token decode failed:", err);
-  //     }
-  //   }
-  // }, [token]);
+  useEffect(() => {
+      const token = localStorage.getItem("userToken");
+      const userdetails=localStorage.getItem("user");
+    if (token) {
+      try {
+        const payload = JSON.parse();
+        console.log(payload.username, payload.email);
+        setFormData({
+          username: payload.username || "",
+          email: payload.email || "",
+          phone: payload.phone || "",
+          address: payload.address || "",
+        });
+      } catch (err) {
+        console.error("Token decode failed:", err);
+      }
+    }
+  }, [token]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

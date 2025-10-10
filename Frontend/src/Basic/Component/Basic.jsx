@@ -10,7 +10,7 @@ export default function BannerManager() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/auth/banner");
+        const res = await axios.get("http://localhost:8000/banner");
         setUsers(res.data.banners || res.data); // Adjust depending on backend response
       } catch (err) {
         console.error("Error fetching banners:", err);
@@ -31,9 +31,9 @@ export default function BannerManager() {
     data.append("name", formData.name);
     data.append("email", formData.email);
     data.append("img", img);
-
+      
     try {
-      const res = await axios.post("http://localhost:8000/auth/banner", data, {
+      const res = await axios.post("http://localhost:8000/banner", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
