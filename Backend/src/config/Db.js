@@ -1,7 +1,17 @@
+// config/db.js
 import mongoose from "mongoose";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
+
 dotenv.config();
-const ConnectionData=()=>{
-    mongoose.connect(process.env.MONGO_ATLAS).then((res)=>console.log("Connected Successfully")).catch((err)=>console.error("err",err))
-}
-export default ConnectionData
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_ATLAS);
+    console.log("MongoDB connected successfully");
+  } catch (err) {
+    console.error("MongoDB connection error:", err.message);
+    process.exit(1); // Exit process on DB connection failure
+  }
+};
+
+export default connectDB;

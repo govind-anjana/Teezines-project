@@ -8,8 +8,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS 
   }
 });
-
-
 transporter.verify().then(() => {
   console.log("Mailer ready");
 }).catch(err => {

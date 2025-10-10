@@ -1,52 +1,59 @@
+// controllers/BannerController.js
 import BannerModel from "../model/BannerModel.js";
-import express from "express";
+
 
 export const BannerAdd = async (req, res) => {
   try {
-    // Check if image exists
-    if (!req.file) return res.status(400).json({ message: "Image is required" });
+    const { name, email } = req.body;
+    if (!req.file) return res.status(400).json({ message: "Image file is required" });
 
-    const { name, email } = req.body; // Banner model fields
-    const newBanner = new BannerModel({
-      name,
-      email,
-      img: req.file.path, // Cloudinary URL
-    });
-      console.log("File:", req.file);
-console.log("Body:", req.body);
-    const savedBanner = await newBanner.save();
-    res.status(201).json({ message: "Banner Added", data: savedBanner });
+    const imageUrl = req.file.path;
+    const newBanner = await BannerModel.create({ name, email, img: imageUrl });
+
+    res.status(201).json({ message: "Banner uploaded successfully!", data: newBanner });
   } catch (err) {
-    console.error(err); // Always log error
-    res.status(500).json({ message: "Server Error", error: err.message });
+    console.error("Upload Error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-export const BannerAll=async(req, res) => {
+/**
+ * Get all banners
+ */
+export const BannerAll = async (req, res) => {
   try {
-    const users = await BannerModel.find();
-    res.json(users);
+    const banners = await BannerModel.find();
+    res.status(200).json({ message: "All banners retrieved", banners });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Server error", error: err.message });
   }
-}
+};
 
-
+/**
+ * Update a banner by ID
+ */
 export const BannerUpdate = async (req, res) => {
   try {
-    const banner = await BannerModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!banner) return res.status(404).json({ message: "Banner not found" });
-    res.status(200).json({ message: "Banner updated successfully", banner });
+    const updatedBanner = await BannerModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updatedBanner) return res.status(404).json({ message: "Banner not found" });
+
+    res.status(200).json({ message: "Banner updated successfully", banner: updatedBanner });
   } catch (err) {
+    console.error("Banner Update Error:", err);
     res.status(500).json({ message: "Error updating banner", error: err.message });
   }
 };
 
+/**
+ * Delete a banner by ID
+ */
 export const BannerDelete = async (req, res) => {
   try {
-    const banner = await BannerModel.findByIdAndDelete(req.params.id);
-    if (!banner) return res.status(404).json({ message: "Banner not found" });
+    const deletedBanner = await BannerModel.findByIdAndDelete(req.params.id);
+    if (!deletedBanner) return res.status(404).json({ message: "Banner not found" });
+
     res.status(200).json({ message: "Banner deleted successfully" });
   } catch (err) {
+    console.error("Banner Delete Error:", err);
     res.status(500).json({ message: "Error deleting banner", error: err.message });
   }
 };

@@ -1,13 +1,30 @@
+// routes/UserRoutes.js
 import express from 'express';
-import { UpdateUser, UserLogin } from '../controller/authController.js';
-import { SignUp, VerifyOtp } from '../controller/auth.js';
+
+// Import controller functions
+import { UpdatePassword, UpdateProfile, UserLogin } from '../controller/authController.js';
+import { register,  VerifyOtp } from '../controller/auth.js';
 import { GetProducts } from '../controller/ProductController.js';
-const router=express.Router();
-router.post("/signup",SignUp);
-router.post("/verify-otp",VerifyOtp)
-router.post("/login",UserLogin);
-router.put("/UpdatePassword",UpdateUser);
+import { BannerAll } from '../controller/BannerController.js';
 
-router.get("/product",GetProducts)
+// Create a router instance
+const router = express.Router();
 
-export default router
+// User Register route
+router.post("/register", register);
+
+// Verify OTP route after signup
+router.post("/verify-otp", VerifyOtp);
+
+// User login route
+router.post("/login", UserLogin);
+
+// Update user password route
+router.put("/updatepass", UpdatePassword);
+
+// Update user profile route
+router.put("/updateprofile", UpdateProfile);
+
+ 
+
+export default router;
