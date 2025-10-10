@@ -4,6 +4,7 @@ import axios from "axios";
 
 const UpdateProfile = () => {
   const [formData, setFormData] = useState({
+    id:"",
     username: "",
     email: "",
     phone: "",
@@ -14,14 +15,18 @@ const UpdateProfile = () => {
 
   
   useEffect(() => {
-      const token = localStorage.getItem("userToken");
+      // const token = localStorage.getItem("userToken");
       const userdetails=localStorage.getItem("user");
-    if (token) {
+      
+    if (userdetails) {
       try {
-        const payload = JSON.parse();
-        console.log(payload.username, payload.email);
+        const payload = JSON.parse(userdetails);
+            // console.log(payload);
+        // console.log(payload.username, payload.email);
+        console.log(payload.id)
         setFormData({
-          username: payload.username || "",
+          id:payload.id || "",
+          username: payload.username  || "",
           email: payload.email || "",
           phone: payload.phone || "",
           address: payload.address || "",
@@ -30,7 +35,7 @@ const UpdateProfile = () => {
         console.error("Token decode failed:", err);
       }
     }
-  }, [token]);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -42,9 +47,9 @@ const UpdateProfile = () => {
     setError("");
 
     try {
-      const res = await axios.put("http://localhost:8000/auth/updateprofile", formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.put(`http://localhost:8000/auth/updateprofile/${formData.id}`, formData );
+      console.log(res.data)
+      alert(res.data.message);
       setMessage(res.data.message);
     } catch (err) {
       setError(err.response?.data?.message || "Update failed");

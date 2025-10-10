@@ -81,21 +81,19 @@ export const UpdatePassword = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 /**
  * Update User Profile
  * Requires JWT middleware to set req.user
  */
 export const UpdateProfile = async (req, res) => {
   try {
-    const userId = req.user.id;  
+    const {id} = req.params;  
     const { username, email, phone, address } = req.body;
-
     if (!username || !email)
       return res.status(400).json({ message: "Username and email are required" });
 
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
+     id,
       { username, email, phone, address },
       { new: true }
     );

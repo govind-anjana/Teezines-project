@@ -23,7 +23,7 @@ router.post("/login", UserLogin);
 router.put("/updatepass", UpdatePassword);
 
 // Update user profile route
-router.put("/updateprofile", UpdateProfile);
+router.put("/updateprofile/:id", UpdateProfile);
 
  
 
