@@ -29,4 +29,6 @@ app.use("/product",productRoutes)
 app.use("/banner",bannerRoutes)
 
 // Export app to be used in server.js
+
+
 export default app;

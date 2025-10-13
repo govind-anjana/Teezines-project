@@ -1,19 +1,36 @@
-// Import Express app from app.js
+// src/Server.js
 import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@as-integrations/express4";
 
-// Import database connection function
-import ConnectionData from "../src/config/Db.js";
+import app from "./app.js";
+import ConnectionData from "./config/Db.js"; // adjust if needed
+import { typeDefs, resolvers } from "./graphql/schema.js";
 
-// Import the configured Express app
-import app from './app.js'
-
-// Define port from environment variable or fallback to 8000
 const PORT = process.env.PORT || 8000;
 
-// Connect to database
+//  Connect Database
 ConnectionData();
 
-// Start the server and listen on the defined port
+//  Create Apollo Server
+const server = new ApolloServer({
+  typeDefs,
+  resolvers
+});
+
+await server.start();
+
+//  Apply Apollo Middleware
+app.use(
+  "/graphql",
+  cors(),
+  bodyParser.json(),
+  expressMiddleware(server)
+);
+
+//  Start Express
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}/graphql`);
 });
