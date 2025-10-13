@@ -5,11 +5,13 @@ import './App.css'
 import Basic from './Basic/Component/Basic'
 import Login from './Pages/Login/Component/Login'
 import UpdateProfile from './Pages/Profile/Component/Profile'
+import Product from './Pages/Product/Component/Product'
 
 function App() {
 
   return (
     <>
+    <Product/>
     <Login/>
     <UpdateProfile/>
     <Basic/>

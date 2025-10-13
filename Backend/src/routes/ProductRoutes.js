@@ -1,19 +1,19 @@
 import express from 'express';
 import { GetProducts, ProductAdd, ProductDelete, ProductUpdate } from '../controller/ProductController.js';
 import { verifyAdmin } from '../middleware/auth.js';
-
+import upload from '../middleware/upload.js';
 const router=express.Router();
 
 // Get all products
 router.get("/",GetProducts);
 
 // Add a product (Admin only)
-router.post("/",verifyAdmin,ProductAdd);
+router.post("/",verifyAdmin, upload.array("img", 5), ProductAdd);
 
 // Update a product by ID (Admin only)
 router.put("/:id", verifyAdmin, ProductUpdate);
 
 // Delete a product by ID (Admin only)
-router.delete("/:id", verifyAdmin, ProductDelete);
+router.delete("/:id",verifyAdmin, ProductDelete);
 
 export default router;

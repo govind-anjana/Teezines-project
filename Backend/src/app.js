@@ -12,7 +12,6 @@ const app = express()
 
 // Enable CORS for all routes
 app.use(cors());
-
 // Parse incoming JSON requests
 app.use(express.json());
 
@@ -29,6 +28,5 @@ app.use("/product",productRoutes)
 app.use("/banner",bannerRoutes)
 
 // Export app to be used in server.js
-
 
 export default app;

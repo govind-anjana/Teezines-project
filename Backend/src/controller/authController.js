@@ -35,7 +35,7 @@ export const UserLogin = async (req, res) => {
     if (!user.isVerified)
       return res.status(403).json({ message: "Please verify your email before logging in." });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "15d" });
 
     res.status(200).json({
       message: "Login successful",
