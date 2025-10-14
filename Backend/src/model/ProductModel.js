@@ -14,7 +14,7 @@ const ProductSchema = new mongoose.Schema({
       stock: { type: Number, default: 0 },
     },
   ],
-  rating: { type: Number, default: 4, min: 0, max: 5 },
+  rating: { type: Number, min: 0, max: 5 },
   productDetails: { type: String },
   productDescription: { type: String },
 }, { timestamps: true });

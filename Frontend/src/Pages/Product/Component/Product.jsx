@@ -8,6 +8,7 @@ function AddProductForm() {
     category: "",
     discount: 0,
     sizes: [{ size: "", stock: 0 }],
+    rating:0,
     productDetails: "",
     productDescription: "",
   });
@@ -135,7 +136,15 @@ function AddProductForm() {
             Add Size
           </button>
         </div>
-
+            <input
+          className="w-full border p-2 rounded"
+          name="rating"
+          placeholder="Rating"
+          type="number"
+          value={product.rating}
+          onChange={handleChange}
+          required
+        />
         <textarea
           className="w-full border p-2 rounded"
           name="productDetails"
