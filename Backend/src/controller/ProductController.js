@@ -19,14 +19,29 @@ export const GetProducts = async (req, res) => {
 
 export const ProductAdd = async (req, res) => {
   try {
-    const { name, price, category, discount, sizes, productDetails, productDescription } = req.body;
+    const {
+      name,
+      price,
+      category,
+      discount,
+      sizes,
+      productDetails,
+      productDescription,
+    } = req.body;
 
-    // Parse sizes array
-    const parsedSizes = JSON.parse(sizes);
+    //  Safe JSON parsing (handles both JSON string & object)
+    let parsedSizes = [];
+    try {
+      parsedSizes = typeof sizes === "string" ? JSON.parse(sizes) : sizes;
+    } catch (error) {
+      console.log(" Invalid sizes JSON:", sizes);
+      parsedSizes = [];
+    }
 
-    // Get uploaded image URLs from Cloudinary
-    const imageUrls = req.files.map(file => file.path);
+    //  Uploaded image URLs (Cloudinary or local)
+    const imageUrls = req.files?.map((file) => file.path) || [];
 
+    //  Create new product
     const newProduct = new ProductModel({
       name,
       price,
@@ -35,17 +50,17 @@ export const ProductAdd = async (req, res) => {
       sizes: parsedSizes,
       productDetails,
       productDescription,
-      img: imageUrls, 
+      img: imageUrls,
     });
 
     await newProduct.save();
 
     res.status(201).json({
-      message: "Product added successfully",
+      message: " Product added successfully",
       product: newProduct,
     });
   } catch (err) {
-    console.error(err);
+    console.error(" ProductAdd Error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };

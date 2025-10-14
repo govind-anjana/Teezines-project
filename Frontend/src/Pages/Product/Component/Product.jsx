@@ -11,7 +11,6 @@ function AddProductForm() {
     productDetails: "",
     productDescription: "",
   });
-
   const [files, setFiles] = useState([]);
 
   const handleChange = (e) => {
@@ -56,8 +55,8 @@ function AddProductForm() {
       const res = await axios.post("http://localhost:8000/product", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("Product added successfully!");
       console.log(res.data);
+      alert("Product added successfully!");
     } catch (err) {
       console.error(err)
       // console.error(err.response?.data || err.message);

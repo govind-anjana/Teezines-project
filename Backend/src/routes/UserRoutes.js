@@ -6,7 +6,7 @@ import { GetUser, UpdatePassword, UpdateProfile, UserLogin } from '../controller
 import { register,  VerifyOtp } from '../controller/auth.js';
 
 // Create a router instance
-const router = express.Router();
+const   router = express.Router();
 //User All Data
 router.get("/",GetUser);
 

@@ -11,14 +11,13 @@ const ProductSchema = new mongoose.Schema({
   sizes: [
     {
       size: { type: String, required: true },
-      stock: { type: Number, default: 0 }
-    }
+      stock: { type: Number, default: 0 },
+    },
   ],
   rating: { type: Number, default: 4, min: 0, max: 5 },
-  productDetails:{type:String},
+  productDetails: { type: String },
   productDescription: { type: String },
 }, { timestamps: true });
 
 const ProductModel = mongoose.model("Product", ProductSchema);
-
 export default ProductModel;
