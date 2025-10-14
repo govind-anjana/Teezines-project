@@ -32,7 +32,7 @@ export const ProductAdd = async (req, res) => {
     // Cloudinary file URLs
     const imageUrls = req.files?.map(file => file.path) || [];
 
-    console.log("Uploaded files:", req.files); // debug
+    // console.log("Uploaded files:", req.files); // debug
 
     const newProduct = new ProductModel({
       name,
@@ -99,7 +99,7 @@ export const ProductUpdate = async (req, res) => {
       updateData,
       { new: true }
     );
-
+    
     if (!updatedProduct)
       return res.status(404).json({ message: "Product not found" });
 
@@ -123,7 +123,7 @@ export const ProductDelete = async (req, res) => {
     if (!deleted)
       return res.status(404).json({ message: "Product not found" });
 
-    res.status(200).json({ message: "Product deleted successfully" });
+    res.status(200).json({ message: "Product deleted successfully" ,});
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
