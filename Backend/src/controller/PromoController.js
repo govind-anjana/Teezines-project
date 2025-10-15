@@ -15,7 +15,7 @@ export const Applypromo = async (req, res) => {
     const { code, totalAmount } = req.body;
     const userEmail = req.user.email;
 
-    const promo = await PromoCodeModel.findOne(code);
+    const promo = await PromoCodeModel.findOne({code});
     if (!promo || !promo.isActive)
       return res.status(400).json({ success: false, message: "Invalid promo code" });
 
@@ -71,4 +71,20 @@ export const PromoUpdate=async(req,res)=>{
     catch(err){
         res.status(500).json({message:'Error Update Promo code',error:err});
     }
+}
+
+export const PromoDelete=async(req,res)=>{
+   try {
+
+    //Find Promo Code by Id and Delete
+    const deleted = await PromoCodeModel.findByIdAndDelete(req.params.id);
+    //If Promo not Found
+    if (!deleted)
+      return res.status(404).json({ message: "Promo Code not found" });
+
+    //Success Message
+    res.status(200).json({ message: "Promo Code deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
 }
