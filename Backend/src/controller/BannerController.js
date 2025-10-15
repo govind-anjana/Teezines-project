@@ -5,7 +5,7 @@ import BannerModel from "../model/BannerModel.js";
 export const BannerAdd = async (req, res) => {
   try {
     const { name, email } = req.body;
-    console.log("File received:", req.file);
+    // console.log("File received:", req.file);
     if (!req.file) return res.status(400).json({ message: "Image file is required" });
 
     const imageUrl = req.file.path;

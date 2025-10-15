@@ -8,6 +8,7 @@ import adminRoutes from './routes/AdminRoutes.js'
 import productRoutes from './routes/ProductRoutes.js';
 
 import bannerRoutes from './routes/BannerRoutes.js'
+import promoRoutes from './routes/PromoRoutes.js'
 const app = express()
 
 // Enable CORS for all routes
@@ -26,6 +27,9 @@ app.use("/product",productRoutes)
 
 // Use Banner With '/banner' prefix
 app.use("/banner",bannerRoutes)
+
+// Use Promo code With "/promo-code" prefix
+app.use("/promo-code",promoRoutes)
 
 // Export app to be used in server.js
 

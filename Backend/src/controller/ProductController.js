@@ -17,7 +17,7 @@ export const GetProducts = async (req, res) => {
 
 /**
  * Add a new product
- */
+*/
 
 export const ProductAdd = async (req, res) => {
   try {
