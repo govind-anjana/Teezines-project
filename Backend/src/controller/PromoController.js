@@ -12,10 +12,10 @@ export const CreatePromo = async (req, res) => {
 
 export const Applypromo = async (req, res) => {
   try {
-    const { promoCode, totalAmount } = req.body;
+    const { code, totalAmount } = req.body;
     const userEmail = req.user.email;
 
-    const promo = await PromoCodeModel.findOne({ code: promoCode });
+    const promo = await PromoCodeModel.findOne(code);
     if (!promo || !promo.isActive)
       return res.status(400).json({ success: false, message: "Invalid promo code" });
 
@@ -53,3 +53,22 @@ export const Applypromo = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+export const PromoUpdate=async(req,res)=>{
+  try{
+    
+     const { code, discountValue, expiryDate } = req.body; 
+
+    // Optional: validate input
+    if (!code && !discountValue && !expiryDate) {
+      return res.status(400).json({ message: "At least one field is required to update" });
+    }
+    const updatepromo=await PromoCodeModel.findByIdAndUpdate(req.params.id,{$set:req.body},{new:true});
+
+    if(!updatepromo) return res.status(404).json({message:"Promo Not Found"})
+      res.status(200).json({message:"Promo Code Update Successfully",Promo:updatepromo})
+    }
+    catch(err){
+        res.status(500).json({message:'Error Update Promo code',error:err});
+    }
+}

@@ -13,7 +13,6 @@ router.post("/", upload.array("img", 5), ProductAdd);
 // Update a product by ID (Admin only)
 router.put("/:id", verifyAdmin, ProductUpdate);
 
-// Delete a product by ID (Admin only)
-router.delete("/:id",verifyAdmin, ProductDelete);
+ 
 
 export default router;
