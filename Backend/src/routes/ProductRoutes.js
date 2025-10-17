@@ -8,7 +8,7 @@ const router=express.Router();
 router.get("/",GetProducts);
 
 //Get Product Id by Find
-router.get("/:id",ProductById)
+router.get("/:id",ProductById);
 
 // Add a product (Admin only)
 router.post("/", upload.array("img", 5), ProductAdd);
