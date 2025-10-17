@@ -9,6 +9,7 @@ import productRoutes from './routes/ProductRoutes.js';
 
 import bannerRoutes from './routes/BannerRoutes.js'
 import promoRoutes from './routes/PromoRoutes.js'
+import paymentRoutes from './routes/PaymentRoutes.js'
 const app = express()
 
 // Enable CORS for all routes
@@ -26,7 +27,11 @@ app.use("/admin", adminRoutes);
 app.use("/product",productRoutes)
 
 // Use Banner With '/banner' prefix
-app.use("/banner",bannerRoutes)
+app.use("/banner",bannerRoutes);
+
+
+//Use Payment Gatevawy method
+app.use("/payment",paymentRoutes);
 
 // Use Promo code With "/promo-code" prefix
 app.use("/promo-code",promoRoutes)
