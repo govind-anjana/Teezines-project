@@ -1,6 +1,19 @@
 import PromoCodeModel from "../model/PromoModel.js";
 
-export const CreatePromo = async (req, res) => {
+/* Get All Promo Details */
+
+export const PromoShow=async(req,res)=>{
+    try {
+
+    //find are all product
+    const promo = await PromoCodeModel.find();
+    res.status(200).json({ message: "All Promo Code Details retrieved", promo });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+}
+
+export const PromoCreate = async (req, res) => {
   try {
     const promo = new PromoCodeModel(req.body);
     const PromoCode = await promo.save();

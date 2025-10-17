@@ -3,7 +3,7 @@ import User from "../model/UserModel.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-export const applyPromo = async (req, res, next) => {
+export const UserapplyPromo = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
