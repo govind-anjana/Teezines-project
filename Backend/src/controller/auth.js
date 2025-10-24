@@ -1,9 +1,10 @@
 // Import necessary modules
-import express from "express";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
+import dotenv from 'dotenv';
 import transporter from "../utils/miler.js"; // nodemailer transporter
 import User from "../model/UserModel.js";
+dotenv.config();
 
 // ------------------ Helper Functions ------------------
 
