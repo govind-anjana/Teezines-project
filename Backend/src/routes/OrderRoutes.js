@@ -1,6 +1,6 @@
 import express from "express";
-import { Createorder } from "../controller/paymentController.js";
+import { createOrder } from "../controller/OrderController.js";
 
 const router = express.Router();
-router.post("/", Createorder);
+router.post("/", createOrder);
 export default router;

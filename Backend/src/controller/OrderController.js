@@ -17,6 +17,7 @@ export const createOrder = async (req, res) => {
       status: "Shipped",
       estimatedDelivery: shipData.data.delivery_date,
     });
+    console.log(shipment)
     await shipment.save();
 
     res.status(201).json({ success: true, order, shipment });

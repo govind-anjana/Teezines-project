@@ -1,5 +1,6 @@
 import axios from "axios";
-
+import dotenv from 'dotenv';
+dotenv.config()
 let tokenCache = null;
 
 export const getShiprocketToken = async () => {
@@ -8,8 +9,8 @@ export const getShiprocketToken = async () => {
   const response = await axios.post(
     "https://apiv2.shiprocket.in/v1/external/auth/login",
     {
-      email: "govindanjana2004@gmail.com",      // <-- Your Shiprocket email
-      password: "Govind@14" // <-- Your Shiprocket password
+      email: process.env.SHIPROCKET_EMAIL,      // <-- Your Shiprocket email
+      password: process.env.SHIPROCKET_PASSWORD // <-- Your Shiprocket password
     }
   );
 

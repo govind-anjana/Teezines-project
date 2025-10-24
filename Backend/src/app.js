@@ -5,6 +5,7 @@ import authRoutes from './routes/UserRoutes.js'
 // Import Admin routes
 import adminRoutes from './routes/AdminRoutes.js'
 
+import categoryRoutes from './routes/CategoryRoutes.js'
 import productRoutes from './routes/ProductRoutes.js';
 
 import bannerRoutes from './routes/BannerRoutes.js'
@@ -23,6 +24,9 @@ app.use("/auth", authRoutes);
 
 // Use Admin routes with '/admin' prefix
 app.use("/admin", adminRoutes);
+
+// Use Admin with '/category' prefix
+app.use("/category",categoryRoutes)
 
 // Use Product with '/product' prefix
 app.use("/product",productRoutes)
