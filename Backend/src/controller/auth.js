@@ -4,7 +4,8 @@ import bcrypt from "bcryptjs";
 import dotenv from 'dotenv';
 import transporter from "../utils/miler.js"; // nodemailer transporter
 import User from "../model/UserModel.js";
-dotenv.config();
+
+dotenv.config()
 
 // ------------------ Helper Functions ------------------
 
@@ -127,5 +128,77 @@ export const VerifyOtp = async (req, res) => {
     return res
       .status(500)
       .json({ message: "Server error", error: err.message });
+  }
+};
+
+export const sendOtpForPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user)
+      return res.status(400).json({ success: false, message: "User not found" });
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Hash OTP for secure storage
+    const otpHash = await bcrypt.hash(otp, 10);
+
+    user.otpHash = otpHash;
+    user.otpExpiresAt = Date.now() + 10 * 60 * 1000; // valid for 10 mins
+    await user.save();
+
+    // Send OTP to user's email
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Password Reset OTP",
+      html: `
+        <h2>Password Reset Request</h2>
+        <p>Your OTP is <b>${otp}</b></p>
+        <p>This OTP will expire in 10 minutes.</p>
+      `,
+    });
+
+    res.json({ success: true, message: "OTP sent to email" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Error sending OTP" });
+  }
+};
+export const resetPasswordWithOtp = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user)
+      return res.status(400).json({ success: false, message: "User not found" });
+
+    if (!user.otpHash)
+      return res.status(400).json({ success: false, message: "No OTP generated" });
+
+    if (user.otpExpiresAt < Date.now())
+      return res.status(400).json({ success: false, message: "OTP expired" });
+
+    // Compare OTP
+    const isMatch = await bcrypt.compare(otp, user.otpHash);
+    if (!isMatch)
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+
+    // Clear OTP fields
+    user.otpHash = undefined;
+    user.otpExpiresAt = undefined;
+
+    await user.save();
+
+    res.json({ success: true, message: "Password reset successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Error resetting password" });
   }
 };

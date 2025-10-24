@@ -3,7 +3,7 @@ import express from 'express';
 
 // Import controller functions
 import { GetUser, UpdatePassword, UpdateProfile, UserLogin } from '../controller/authController.js';
-import { register,  VerifyOtp } from '../controller/auth.js';
+import { register,  resetPasswordWithOtp,  sendOtpForPasswordReset,  VerifyOtp } from '../controller/auth.js';
 
 // Create a router instance
 const   router = express.Router();
@@ -24,6 +24,10 @@ router.put("/updatepass", UpdatePassword);
 
 // Update user profile route
 router.put("/updateprofile/:id", UpdateProfile);
+
+// Forget Password routes
+router.post("/forgot-password", sendOtpForPasswordReset);
+router.post("/reset-password", resetPasswordWithOtp);
 
  
 

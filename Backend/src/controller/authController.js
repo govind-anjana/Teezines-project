@@ -27,10 +27,10 @@ export const UserLogin = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    if (!user) return res.status(400).json({ message: "Invalid email " });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    if (!isMatch) return res.status(400).json({ message: "Invalid Password are not match" });
 
     if (!user.isVerified)
       return res.status(403).json({ message: "Please verify your email before logging in." });
