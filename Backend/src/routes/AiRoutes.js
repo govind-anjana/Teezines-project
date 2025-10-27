@@ -35,7 +35,6 @@ router.post("/use", authMiddleware, async(req,res)=>{
     res.status(500).json({error:err.message});
   }
 });
-
 // Admin route: count all AI users
 router.get("/all", async(req,res)=>{
   try{
