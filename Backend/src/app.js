@@ -12,6 +12,7 @@ import bannerRoutes from './routes/BannerRoutes.js'
 import promoRoutes from './routes/PromoRoutes.js'
 import paymentRoutes from './routes/PaymentRoutes.js'
 import orderRoutes from './routes/OrderRoutes.js'
+import aiRoutes from './routes/AiRoutes.js'
 const app = express()
 
 // Enable CORS for all routes
@@ -39,8 +40,9 @@ app.use("/banner",bannerRoutes);
 app.use("/payment",paymentRoutes);
 
 // Use Promo code With "/promo-code" prefix
-app.use("/promo-code",promoRoutes)
+app.use("/promo-code",promoRoutes);
 
+app.use("/ai",aiRoutes)
 
 app.use("/orders",orderRoutes)
 // Export app to be used in server.js

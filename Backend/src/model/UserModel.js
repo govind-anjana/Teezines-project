@@ -10,8 +10,7 @@ const userSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   otpHash: { type: String },            
   otpExpiresAt: { type: Date },         
-
-  
+ hasUsedAI: { type: Boolean, default: false },
   verificationToken: { type: String },
 }, { timestamps: true });
 
