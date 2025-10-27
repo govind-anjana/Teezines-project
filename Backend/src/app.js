@@ -27,10 +27,11 @@ app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 
 // Use Admin with '/category' prefix
-app.use("/category",categoryRoutes)
+app.use("/category",categoryRoutes);
+
 
 // Use Product with '/product' prefix
-app.use("/product",productRoutes)
+app.use("/product",productRoutes);
 
 // Use Banner With '/banner' prefix
 app.use("/banner",bannerRoutes);

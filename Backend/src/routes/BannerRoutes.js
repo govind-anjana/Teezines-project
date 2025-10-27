@@ -11,7 +11,7 @@ router.get("/", BannerAll);
 router.post("/", upload.single("img"), BannerAdd);
 
 // Update a banner by ID (Admin only)
-router.put("/:id", verifyAdmin, BannerUpdate);
+router.put("/:id", verifyAdmin, upload.single("img"), BannerUpdate);
 
 // Delete a banner by ID (Admin only)
 router.delete("/:id", verifyAdmin, BannerDelete);

@@ -3,14 +3,14 @@ import mongoose from "mongoose";
 
 const BannerSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      trim: true, // Removes extra spaces
+   productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product", // linked product ID
+      required: true,
     },
-    email: {
-      type: String,
-      trim: true,
-      lowercase: true,
+    isActive: {
+      type: Boolean,
+      default: true, // frontend me show karne ke liye toggle
     },
     img: {
       type: String,

@@ -77,22 +77,46 @@ export const ProductAdd = async (req, res) => {
 /**
  * Update a product by ID
  */
-export const ProductUpdate = async (req, res) => {
+ export const ProductUpdate = async (req, res) => {
   try {
-    const { name, price, category,section, discount, sizes,rating, productDetails, productDescription } = req.body;
+    const {
+      name,
+      price,
+      category,
+      section,
+      discount,
+      sizes,
+      rating,
+      productDetails,
+      productDescription,
+    } = req.body;
 
-    // Parse sizes (string -> array)
+    // Parse sizes (string → array)
     let parsedSizes = [];
     try {
       parsedSizes = typeof sizes === "string" ? JSON.parse(sizes) : sizes;
-    } catch (err) {
+    } catch {
       parsedSizes = [];
     }
 
-    // Uploaded images (Cloudinary)
-    const imageUrls = req.files?.map(file => file.path) || [];
+    // Existing product find
+    const product = await ProductModel.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
 
-    // Prepare update object
+    // Handle new image upload (Cloudinary or multer local)
+    let imageUrls = [];
+
+    // Agar nayi image upload hui hai to use update karo
+    if (req.files && req.files.length > 0) {
+      imageUrls = req.files.map((file) => file.path);
+    } else {
+      // Agar new image nahi aayi to purani image hi rakho
+      imageUrls = product.img;
+    }
+
+    // Update object prepare karo
     const updateData = {
       name,
       price,
@@ -103,31 +127,22 @@ export const ProductUpdate = async (req, res) => {
       rating,
       productDetails,
       productDescription,
+      img: imageUrls, // final image array
     };
 
-
-    if (imageUrls.length > 0) {
-      updateData.img = imageUrls;
-    }
-
     // Update product
-    const updatedProduct = await ProductModel.findOneAndUpdate(
-      { _id: req.params.id },
+    const updatedProduct = await ProductModel.findByIdAndUpdate(
+      req.params.id,
       updateData,
       { new: true }
     );
 
-    if (!updatedProduct)
-      return res.status(404).json({ message: "Product not found" });
-   
-    //send Successfully Responese
-    res.status(200).json({
-      message: "Product updated successfully",
-      product: updatedProduct
+    return res.status(200).json({
+      message: " Product updated successfully",
+      product: updatedProduct,
     });
-
   } catch (err) {
-    console.error("ProductUpdate Error:", err);
+    console.error(" ProductUpdate Error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
