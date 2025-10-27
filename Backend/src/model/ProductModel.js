@@ -10,6 +10,11 @@ const ProductSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
+    section: {
+      type: String,
+      enum: ["treding", "comic-style","winters wear", "others"], // sirf allowed options
+      required: true,
+    },
     discount: { type: Number, default: 0, min: 0, max: 100 },
     quantity: { type: Number, default: 1, min: 0 },
     img: [{ type: String }],
