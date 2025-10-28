@@ -11,7 +11,7 @@ router.get("/",GetProducts);
 router.get("/:id",ProductById);
 
 // Add a product (Admin only)
-router.post("/", upload.array("img", 5), ProductAdd);
+router.post("/",verifyAdmin, upload.array("img", 5), ProductAdd);
 
 // Update a product by ID (Admin only)
 router.put("/:id",  verifyAdmin, upload.array("img", 5), ProductUpdate);

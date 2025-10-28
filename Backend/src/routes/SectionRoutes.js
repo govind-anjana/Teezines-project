@@ -17,11 +17,11 @@ router.get("/product",GetSectionProduct)
 
 router.get("/:section", GetProductsBySection);
 
-router.post("/product",AddSectionPro);
+router.post("/product",verifyAdmin,AddSectionPro);
 
-router.put("/product/:id",SectionProUpdate);
+router.put("/product/:id",verifyAdmin,SectionProUpdate);
 
-router.post("/product-remove", RemoveProductFromSection);
+router.post("/product-remove",verifyAdmin, RemoveProductFromSection);
 
 
 export default router;

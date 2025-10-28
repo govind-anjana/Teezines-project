@@ -38,6 +38,7 @@ app.use("/product",productRoutes);
 app.use("/banner",bannerRoutes);
 
 app.use("/section",sectionRoutes);
+
 //Use Payment Gatevawy method
 app.use("/payment",paymentRoutes);
 

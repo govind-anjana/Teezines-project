@@ -4,6 +4,7 @@ import express from 'express';
 // Import controller functions
 import { GetUser, UpdatePassword, UpdateProfile, UserLogin } from '../controller/authController.js';
 import { register,  resetPasswordWithOtp,  sendOtpForPasswordReset,  VerifyOtp } from '../controller/auth.js';
+import { registerUser } from '../controller/OtpController.js';
 
 // Create a router instance
 const   router = express.Router();
@@ -12,6 +13,7 @@ router.get("/",GetUser);
 
 // User Register route
 router.post("/register", register);
+router.post("/registers", registerUser);
 
 // Verify OTP route after signup
 router.post("/verify-otp", VerifyOtp);
