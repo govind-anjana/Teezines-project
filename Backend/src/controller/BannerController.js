@@ -6,16 +6,35 @@ import ProductModel from "../model/ProductModel.js";
 export const BannerAdd = async (req, res) => {
   try {
     const { productId,isActive } = req.body;
-
-     const productExists = await ProductModel.findById(productId);
-    if (!productExists) {
-      return res.status(404).json({ success: false, message: "Product not found" });
-    }
+    
     // console.log("File received:", req.file);
     if (!req.file) return res.status(400).json({ message: "Image file is required" });
 
     const imageUrl = req.file.path;
-    const newBanner = await BannerModel.create({productId,isActive , img: imageUrl });
+ let isActiveBool = true; // default true
+    if (typeof isActive === "string") {
+      isActiveBool = isActive.toLowerCase() === "true";
+    } else if (typeof isActive === "boolean") {
+      isActiveBool = isActive;
+    }
+
+      let newBannerData = {
+      img: imageUrl,
+      isActive: isActiveBool,
+    };
+
+    // agar productId di gayi hai to product verify karo
+    if (productId) {
+      const productExists = await ProductModel.findById(productId);
+      if (!productExists) {
+        return res.status(404).json({ message: "Product not found with given ID" });
+      }
+
+      newBannerData.productId = productId;
+    }
+
+    // banner create
+    const newBanner = await BannerModel.create(newBannerData);
 
     res.status(201).json({ message: "Banner uploaded successfully!", data: newBanner });
   } catch (err) {

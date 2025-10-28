@@ -6,7 +6,6 @@ const BannerSchema = new mongoose.Schema(
    productId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product", // linked product ID
-      required: true,
     },
     isActive: {
       type: Boolean,
