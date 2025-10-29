@@ -1,5 +1,5 @@
 import SectionProModel from "../model/SectionProModel.js";
-
+import SectionModel from "../model/SectionModel.js";
 export const GetProductsBySection = async (req, res) => {
   try {
     const { section } = req.params; // e.g. "comic-style"
@@ -47,7 +47,7 @@ export const GetSectionProduct = async (req, res) => {
         message: "Section name and Product ID are required",
       });
     }
-const existingSection = await SectionProModel.findOne({ section });
+const existingSection = await SectionModel.findOne({ section });
 
     if (!existingSection) {
       return res.status(404).json({
