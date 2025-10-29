@@ -32,5 +32,5 @@ app.use(
 
 //  Start Express
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}/graphql`);
+  console.log(`Server running at http://localhost:${PORT}/graphql`);
 });
