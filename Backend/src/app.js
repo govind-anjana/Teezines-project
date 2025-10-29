@@ -37,7 +37,7 @@ app.use("/product",productRoutes);
 // Use Banner With '/banner' prefix
 app.use("/banner",bannerRoutes);
 
-app.use("/shop",sectionRoutes);
+app.use("/section",sectionRoutes);
 
 //Use Payment Gatevawy method
 app.use("/payment",paymentRoutes);

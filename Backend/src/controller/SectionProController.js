@@ -73,32 +73,33 @@ const existingSection = await SectionProModel.findOne({ section });
 };
 
 
-export const SectionProUpdate = async (req, res) => {
+export const SectionProductReplace = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { sectionName, oldProductId, newProductId } = req.body;
+ if (!sectionName || !oldProductId || !newProductId) {
+      return res.status(400).json({
+        success: false,
+        message: "sectionName, oldProductId, and newProductId are required",
+      });
+    }
+    const sections = await SectionProModel.findOne({ section: sectionName});
+    if (!sections) return res.status(404).json({ success: false, message: "Section not found" });
 
-    // Check if ID exists
-    if (!id) {
-      return res.status(400).json({ success: false, message: "Section ID is required" });
+    // Find index and replace
+    const index = sections.products.indexOf(oldProductId);
+    if (index === -1) {
+      return res.status(404).json({ success: false, message: "Old product not found in section" });
     }
 
-    // Update section
-    const updatedSection = await SectionProModel.findByIdAndUpdate(id, req.body, { new: true });
+    sections.products[index] = newProductId;
+    await sections.save();
 
-    // Check if section found
-    if (!updatedSection) {
-      return res.status(404).json({ success: false, message: "Section not found" });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Section updated successfully",
-      data: updatedSection,
-    });
+    res.json({ success: true, message: "Product replaced successfully", data: sections });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 export const RemoveProductFromSection = async (req, res) => {
   try {
@@ -111,19 +112,30 @@ export const RemoveProductFromSection = async (req, res) => {
       });
     }
 
-    // Find section by name and remove product from products array
-    const updatedSection = await SectionProModel.findOneAndUpdate(
-      { section }, // find by section name (e.g., "comic")
-      { $pull: { products: productId } }, // remove productId from array
-      { new: true } // return updated doc
-    ).populate("products");
+    // Find section first
+    const sectionData = await SectionProModel.findOne({ section });
 
-    if (!updatedSection) {
+    if (!sectionData) {
       return res.status(404).json({
         success: false,
         message: "Section not found",
       });
     }
+
+    // Check if product exists in section
+    const productIndex = sectionData.products.indexOf(productId);
+    if (productIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found in this section",
+      });
+    }
+
+    // Remove product
+    sectionData.products.splice(productIndex, 1);
+    await sectionData.save();
+
+    const updatedSection = await SectionProModel.findOne({ section }).populate("products");
 
     res.status(200).json({
       success: true,
