@@ -20,45 +20,35 @@ function hashOtp(otp) {
 }
 
 // ------------------ Controllers ------------------
-
+let tempUsers = {}; 
 // User signup controller
 export const register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, dateOfBirth, password } = req.body;
 
-    // Validate required fields
-    if (!username || !email || !password)
+    if (!username || !email || !dateOfBirth || !password)
       return res.status(400).json({ message: "All fields required" });
 
-    // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({ message: "Email already registered" });
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create new user with isVerified=false
-    const user = new User({
-      username,
-      email,
-      password: hashedPassword,
-      isVerified: false,
-    });
-
-    // Generate OTP for email verification
     const otp = generateOtp();
     const otpHash = hashOtp(otp);
-    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min
 
-    user.otpHash = otpHash;
-    user.otpExpiresAt = otpExpiresAt;
+    //  store temporarily instead of saving in DB
+    tempUsers[email] = {
+      username,
+      email,
+      dateOfBirth,
+      password: hashedPassword,
+      otpHash,
+      otpExpiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+    };
 
-    // Save user in DB
-    await user.save();
-
-    // Prepare email
-    const mailOptions = {
+    // 🔹 send OTP email
+    await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Verify your email - OTP",
@@ -66,68 +56,57 @@ export const register = async (req, res) => {
         <p>Hi ${username},</p>
         <p>Your OTP for email verification is: <b>${otp}</b></p>
         <p>This OTP will expire in 10 minutes.</p>
-        <p>If you didn't sign up, ignore this email.</p>
       `,
-    };
-
-    // Send OTP email
-    await transporter.sendMail(mailOptions);
+    });
 
     return res
       .status(201)
-      .json({ message: "Signup successful! OTP sent to email." });
+      .json({ message: "OTP sent to email. Please verify to complete registration." });
   } catch (err) {
     console.error(err);
-    return res
-      .status(500)
-      .json({ message: "Server error", error: err.message });
+    return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
 
    
 // Verify OTP controller
-export const VerifyOtp = async (req, res) => {
+ export const VerifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    // Validate input
     if (!email || !otp)
       return res.status(400).json({ message: "Email and OTP required" });
 
-    // Find user by email
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const tempUser = tempUsers[email];
+    if (!tempUser)
+      return res.status(404).json({ message: "No pending registration found" });
 
-    // Check if OTP exists
-    if (!user.otpHash || !user.otpExpiresAt)
-      return res
-        .status(400)
-        .json({ message: "No OTP requested or already used" });
+    if (tempUser.otpExpiresAt < Date.now())
+      return res.status(400).json({ message: "OTP expired. Please register again." });
 
-    // Check if OTP expired
-    if (user.otpExpiresAt < new Date())
-      return res
-        .status(400)
-        .json({ message: "OTP expired. Request a new one." });
-
-    // Verify OTP
     const hashed = hashOtp(otp);
-    if (hashed !== user.otpHash)
+    if (hashed !== tempUser.otpHash)
       return res.status(400).json({ message: "Invalid OTP" });
 
-    // Mark user as verified
-    user.isVerified = true;
-    user.otpHash = undefined;
-    user.otpExpiresAt = undefined;
+    //  Save to database now
+    const user = new User({
+      username: tempUser.username,
+      email: tempUser.email,
+      dateOfBirth: tempUser.dateOfBirth,
+      password: tempUser.password,
+      isVerified: true,
+    });
+
     await user.save();
 
-    return res.json({ message: "Email verified successfully!" });
+    // delete from temp storage
+    delete tempUsers[email];
+
+    return res.status(201).json({ message: "Email verified and user registered successfully!" });
   } catch (err) {
     console.error(err);
-    return res
-      .status(500)
-      .json({ message: "Server error", error: err.message });
+    return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 

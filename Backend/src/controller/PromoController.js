@@ -113,9 +113,9 @@ await promo.save();
 
 export const PromoUpdate=async(req,res)=>{
   try {
-    const { code, discountValue, expiryDate, applicableCategory, applicableProduct } = req.body;
+    const { code, discountValue, usageLimit,expiryDate, applicableCategory, applicableProduct } = req.body;
 
-    if (code === undefined && discountValue === undefined && expiryDate === undefined &&
+    if (code === undefined && discountValue === undefined && usageLimit===undefined && expiryDate === undefined &&
         applicableCategory === undefined && applicableProduct === undefined) {
       return res.status(400).json({ message: "At least one field is required to update" });
     }
@@ -123,6 +123,7 @@ export const PromoUpdate=async(req,res)=>{
     const updateData = {};
     if (code !== undefined) updateData.code = code;
     if (discountValue !== undefined) updateData.discountValue = discountValue;
+     if (usageLimit !== undefined) updateData.usageLimit = usageLimit;
     if (expiryDate !== undefined) updateData.expiryDate = expiryDate;
 
     if (applicableCategory !== undefined) {
@@ -155,7 +156,7 @@ export const PromoDelete=async(req,res)=>{
     const deleted = await PromoCodeModel.findByIdAndDelete(req.params.id);
     //If Promo not Found
     if (!deleted)
-      return res.status(404).json({ message: "Promo Code not found" });
+      return res.status(404).json({ message: "Promo Code not found " });
 
     //Success Message
     res.status(200).json({ message: "Promo Code deleted successfully" });

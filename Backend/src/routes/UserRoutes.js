@@ -29,7 +29,7 @@ router.post("/verify-otp", VerifyOtp);
 router.post("/login", UserLogin);
 
 // Update user password route
-router.put("/updatepass", UpdatePassword);
+router.put("/updatepass/:id", UpdatePassword);
 
 // Update user profile route
 router.put("/updateprofile/:id", UpdateProfile);

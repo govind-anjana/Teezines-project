@@ -59,6 +59,11 @@ export const UpdatePassword = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
+    
+    if (email && email !== user.email) {
+      return res.status(400).json({ message: "Email does not match the user record" });
+    }
+
 
     // Update password if provided
     if (newPassword) {
@@ -89,13 +94,13 @@ export const UpdatePassword = async (req, res) => {
 export const UpdateProfile = async (req, res) => {
   try {
     const {id} = req.params;  
-    const { username, email, phone, address } = req.body;
+    const { username, email, phone, address,dateOfBirth } = req.body;
     if (!username || !email)
       return res.status(400).json({ message: "Username and email are required" });
 
     const updatedUser = await User.findByIdAndUpdate(
      id,
-      { username, email, phone, address },
+      { username, email, phone, address,dateOfBirth },
       { new: true }
     );
 
