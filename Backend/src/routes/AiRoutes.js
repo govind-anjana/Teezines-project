@@ -27,9 +27,7 @@ router.get("/status",CurrentStatus);
 router.post("/toggle-status",Toggle);
 
 
-
-
-router.post("/create",)
+router.post("/create",CreateUserAi)
 // User uses AI
 router.post("/use", authMiddleware,UseUser);
 
