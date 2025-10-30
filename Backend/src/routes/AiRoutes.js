@@ -1,11 +1,12 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import User from "../model/UserModel.js";
 import dotenv from 'dotenv';
+import { UserAll, UseUser } from "../controller/AiUseUserController.js";
+// import {CurrentStatus} from '../controller/AiToogleController.js'
 
 dotenv.config();
 const router = express.Router();
-
+router.get("/",CurrentStatus)
 // Auth middleware
 const authMiddleware = async (req,res,next)=>{
   try{
@@ -17,32 +18,15 @@ const authMiddleware = async (req,res,next)=>{
   }catch(err){
     res.status(401).json({message:"Invalid token"});
   }
-}
+};
+
+//
+// router.post("/toggle-status",Toggle);
 
 // User uses AI
-router.post("/use", authMiddleware, async(req,res)=>{
-  try{
-    const user = await User.findById(req.userId);
-    if(!user) return res.status(404).json({message:"User not found"});
+router.post("/use", authMiddleware,UseUser);
 
-    if(!user.hasUsedAI){
-      user.hasUsedAI = true; //  mark AI use
-      await user.save();
-    }
-
-    res.json({success:true, message:"AI used successfully"});
-  }catch(err){
-    res.status(500).json({error:err.message});
-  }
-});
 // Admin route: count all AI users
-router.get("/all", async(req,res)=>{
-  try{
-    const aiUsers = await User.find({hasUsedAI:true}, "username email");
-    res.json({success:true, totalUsers: aiUsers.length, users: aiUsers});
-  }catch(err){
-    res.status(500).json({error:err.message});
-  }
-});
+router.get("/all", UserAll);
 
 export default router;
