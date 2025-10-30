@@ -5,6 +5,7 @@ import {  getAllAiUsage, UseAI } from "../controller/AiUseUserController.js";
 import { CurrentStatus, Toggle } from "../controller/AiToggleController.js";
 import {   GetAiLimit, SetAiLimit} from "../controller/AiCreateDetelineController.js";
 import { UserapplyPromo } from "../middleware/authUser.js";
+import { AiUsageHandler, GetAllAiUsage } from "../controller/AiUsageController.js";
 
 dotenv.config();
 const router = express.Router();
@@ -35,6 +36,13 @@ router.get("/get",GetAiLimit);
 router.post("/use-user",UserapplyPromo,UseAI);
 
 router.get("/usageall", getAllAiUsage);
+//Admin Verify middleware
+router.get("/use",  GetAllAiUsage);
+
+router.post("/use",UserapplyPromo,AiUsageHandler);
+
+
+
 // User uses AI
 // router.post("/use", authMiddleware,UseUser);
 
