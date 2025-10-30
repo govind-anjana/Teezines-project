@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
 import { UserAll, UseUser } from "../controller/AiUseUserController.js";
 import { CurrentStatus, Toggle } from "../controller/AiToggleController.js";
-// import {CurrentStatus} from '../controller/AiToogleController.js'
+import {   GetAiLimit, SetAiLimit} from "../controller/AiCreateDetelineController.js";
 
 dotenv.config();
 const router = express.Router();
@@ -26,8 +26,9 @@ router.get("/status",CurrentStatus);
 
 router.post("/toggle-status",Toggle);
 
+router.post("/set",SetAiLimit);
 
-router.post("/create",CreateUserAi)
+router.get("/get",GetAiLimit);
 // User uses AI
 router.post("/use", authMiddleware,UseUser);
 
