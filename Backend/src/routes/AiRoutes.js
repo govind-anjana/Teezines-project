@@ -1,9 +1,10 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
-import { UserAll, UseUser } from "../controller/AiUseUserController.js";
+import {  getAllAiUsage, UseAI } from "../controller/AiUseUserController.js";
 import { CurrentStatus, Toggle } from "../controller/AiToggleController.js";
 import {   GetAiLimit, SetAiLimit} from "../controller/AiCreateDetelineController.js";
+import { UserapplyPromo } from "../middleware/authUser.js";
 
 dotenv.config();
 const router = express.Router();
@@ -29,10 +30,15 @@ router.post("/toggle-status",Toggle);
 router.post("/set",SetAiLimit);
 
 router.get("/get",GetAiLimit);
+
+
+router.post("/use-user",UserapplyPromo,UseAI);
+
+router.get("/usageall", getAllAiUsage);
 // User uses AI
-router.post("/use", authMiddleware,UseUser);
+// router.post("/use", authMiddleware,UseUser);
 
 // Admin route: count all AI users
-router.get("/all", UserAll);
+// router.get("/all", UserAll);
 
 export default router;

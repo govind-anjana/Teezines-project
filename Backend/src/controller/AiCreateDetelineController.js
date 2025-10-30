@@ -1,6 +1,5 @@
 import AiLimit from '../model/AiCreateModel.js'
 
-
 export const SetAiLimit=async(req,res)=>{
     try {
     const { limitType, limitCount } = req.body;

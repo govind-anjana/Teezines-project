@@ -18,4 +18,5 @@ const aiLimitSettingSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("AiLimit", aiLimitSettingSchema);
+const AiLimit=mongoose.model("AiLimit", aiLimitSettingSchema);
+export default AiLimit
