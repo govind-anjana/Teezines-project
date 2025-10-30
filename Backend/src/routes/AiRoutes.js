@@ -2,11 +2,12 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
 import { UserAll, UseUser } from "../controller/AiUseUserController.js";
+import { CurrentStatus, Toggle } from "../controller/AiToggleController.js";
 // import {CurrentStatus} from '../controller/AiToogleController.js'
 
 dotenv.config();
 const router = express.Router();
-router.get("/",CurrentStatus)
+
 // Auth middleware
 const authMiddleware = async (req,res,next)=>{
   try{
@@ -21,8 +22,14 @@ const authMiddleware = async (req,res,next)=>{
 };
 
 //
-// router.post("/toggle-status",Toggle);
+router.get("/status",CurrentStatus);
 
+router.post("/toggle-status",Toggle);
+
+
+
+
+router.post("/create",)
 // User uses AI
 router.post("/use", authMiddleware,UseUser);
 

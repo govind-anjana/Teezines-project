@@ -1,5 +1,5 @@
 import SectionModel from "../model/SectionModel.js";
-
+import SectionProModel from "../model/SectionProModel.js";
 export const GetSection = async (req, res) => {
   try {
 
@@ -73,18 +73,22 @@ export const SectionDelete = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if section exists
+    //  Step 1: Check if section exists
     const existing = await SectionModel.findById(id);
     if (!existing) {
       return res.status(404).json({ success: false, message: "Section not found" });
     }
 
-    // Delete section
+    //  Step 2: Delete section from SectionModel
     await SectionModel.findByIdAndDelete(id);
 
+    //  Step 3: Delete same section from SectionProModel (by section name)
+    await SectionProModel.findOneAndDelete({ section: existing.section });
+
+    //  Step 4: Response
     res.status(200).json({
       success: true,
-      message: "section deleted successfully!",
+      message: `Section '${existing.section}' and its related SectionPro deleted successfully!`,
     });
   } catch (err) {
     console.error("Delete Error:", err);

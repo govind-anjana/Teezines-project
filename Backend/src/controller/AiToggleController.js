@@ -1,6 +1,6 @@
 import AiToggleModel from "../model/AiToggleModel.js";
 
-export const CurrentStatus = async (req, res) => {
+export const CurrentStatus = async(req,res) => {
   try {
     let setting = await AiToggleModel.findOne();
     if (!setting) setting = await AiToggleModel.create({});
@@ -9,7 +9,6 @@ export const CurrentStatus = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 export const Toggle = async (req, res) => {
   try {
     const { value } = req.body; // true or false from admin
