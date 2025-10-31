@@ -3,7 +3,7 @@ import express from 'express';
 
 // Import controller functions
 import { GetUser, UpdatePassword, UpdateProfile, UserLogin } from '../controller/authController.js';
-import { register,  resetPasswordWithOtp,  sendOtpForPasswordReset,  VerifyOtp } from '../controller/auth.js';
+import { forgetPassword, register } from '../controller/auth.js';
 // import { SendOtp } from '../controller/mailController.js';
 
 // import { registerUser } from '../controller/OtpController.js';
@@ -23,7 +23,7 @@ router.post("/register", register);
 // router.post("/registers", registerUser);
 
 // Verify OTP route after signup
-router.post("/verify-otp", VerifyOtp);
+// router.post("/verify-otp", VerifyOtp);
 
 // User login route
 router.post("/login", UserLogin);
@@ -35,8 +35,8 @@ router.put("/updatepass/:id", UpdatePassword);
 router.put("/updateprofile/:id", UpdateProfile);
 
 // Forget Password routes
-router.post("/forgot-password", sendOtpForPasswordReset);
-router.post("/reset-password", resetPasswordWithOtp);
+router.post("/forgot-password",forgetPassword);
+// router.post("/reset-password", resetPasswordWithOtp);
 
  
 

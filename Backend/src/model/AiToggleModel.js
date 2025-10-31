@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 
 const settingSchema = new mongoose.Schema({
-  logoutVisible: { type: Boolean, default: false }
+  logoutVisible: { type: Boolean, default: true }
 }, { timestamps: true });
 
 const AiToggleModel=mongoose.model("AiToggle", settingSchema);

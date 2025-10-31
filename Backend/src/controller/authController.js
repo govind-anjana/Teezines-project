@@ -35,7 +35,7 @@ export const UserLogin = async (req, res) => {
     if (!user.isVerified)
       return res.status(403).json({ message: "Please verify your email before logging in." });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "2h" });
 
     res.status(200).json({
       message: "Login successful",
@@ -95,8 +95,8 @@ export const UpdateProfile = async (req, res) => {
   try {
     const {id} = req.params;  
     const { username, email, phone, address,dateOfBirth } = req.body;
-    if (!username || !email)
-      return res.status(400).json({ message: "Username and email are required" });
+    if (!email)
+      return res.status(400).json({ message: "email are required" });
 
     const updatedUser = await User.findByIdAndUpdate(
      id,
