@@ -1,52 +1,61 @@
+// ================================
+// Import Dependencies
+// ================================
 import express from "express";
 import jwt from "jsonwebtoken";
-import dotenv from 'dotenv';
-import {  getAllAiUsage, UseAI } from "../controller/AiUseUserController.js";
+import dotenv from "dotenv";
+import { getAllAiUsage, UseAI } from "../controller/AiUseUserController.js";
 import { CurrentStatus, Toggle } from "../controller/AiToggleController.js";
-import {   GetAiLimit, SetAiLimit} from "../controller/AiCreateDetelineController.js";
+import { GetAiLimit, SetAiLimit } from "../controller/AiCreateDetelineController.js";
 import { UserapplyPromo } from "../middleware/authUser.js";
 import { AiUsageHandler, GetAllAiUsage } from "../controller/AiUsageController.js";
+import { verifyAdmin } from "../middleware/auth.js";
 
 dotenv.config();
 const router = express.Router();
 
-// Auth middleware
-const authMiddleware = async (req,res,next)=>{
-  try{
-    const token = req.headers.authorization?.split(" ")[1];
-    if(!token) return res.status(401).json({message:"No token"});
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.id;
-    next();
-  }catch(err){
-    res.status(401).json({message:"Invalid token"});
-  }
-};
+// ================================
+// AI Toggle Routes
+// ================================
 
-//
-router.get("/status",CurrentStatus);
+// Get current AI logout visibility status
+router.get("/status", CurrentStatus);
 
-router.post("/toggle-status",Toggle);
+// Toggle AI logout visibility (Admin only)
+router.post("/toggle-status", verifyAdmin, Toggle);
 
-router.post("/set",SetAiLimit);
+// ================================
+// AI Limit Routes
+// ================================
 
-router.get("/get",GetAiLimit);
+// Admin sets AI usage limit type and count
+router.post("/set", verifyAdmin, SetAiLimit);
 
+// Admin gets the current AI limit settings
+router.get("/get", verifyAdmin, GetAiLimit);
 
-router.post("/use-user",UserapplyPromo,UseAI);
+// ================================
+// AI Usage by User
+// ================================
 
-router.get("/usageall", getAllAiUsage);
-//Admin Verify middleware
-router.get("/use",  GetAllAiUsage);
+// User uses AI within allowed limits
+router.post("/use-user", UserapplyPromo, UseAI);
 
-router.post("/use",UserapplyPromo,AiUsageHandler);
+// ================================
+// Admin: AI Usage Reports
+// ================================
 
+// Admin gets all AI usage data (old endpoint)
+router.get("/usageall", verifyAdmin, getAllAiUsage);
 
+// Admin gets all AI usage data (new endpoint)
+router.get("/use", verifyAdmin, GetAllAiUsage);
 
-// User uses AI
-// router.post("/use", authMiddleware,UseUser);
+// ================================
+// User AI Action Tracking
+// ================================
 
-// Admin route: count all AI users
-// router.get("/all", UserAll);
+// User action (generate, response, accepted)
+router.post("/use", UserapplyPromo, AiUsageHandler);
 
 export default router;

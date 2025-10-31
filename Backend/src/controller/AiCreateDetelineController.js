@@ -27,7 +27,7 @@ export const GetAiLimit = async (req, res) => {
   try {
     const setting = await AiLimit.findOne();
     if (!setting) {
-      return res.status(404).json({ success: false, message: "No setting found" });
+      return res.status(404).json({ success: false, message: "No Limit found" });
     }
     res.status(200).json({ success: true, setting });
   } catch (err) {

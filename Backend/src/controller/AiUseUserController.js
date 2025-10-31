@@ -1,7 +1,5 @@
-
 import AiModel from "../model/AiUserUseModel.js";
 import AiLimit from "../model/AiCreateModel.js";
-import jwt from "jsonwebtoken";
 
 //  Middleware se token decode hoke req.user.username aayega
 export const UseAI = async (req, res) => {
@@ -14,7 +12,7 @@ export const UseAI = async (req, res) => {
     //  Limit setting fetch (default agar admin ne set nahi ki)
     const limitSetting = await AiLimit.findOne() || { limitType: "perday", limitCount: 3 };
 
-    // 🔹 User usage record find ya create
+    //  User usage record find ya create
     let userUsage = await AiModel.findOne({ username });
 
     const today = new Date().toDateString(); // compare for perday reset
@@ -23,12 +21,12 @@ export const UseAI = async (req, res) => {
       userUsage = new AiModel({ username, usedCount: 0 });
     }
 
-    // 🔹 Agar perday limit hai aur last use different date ka tha to reset
+    //  Agar perday limit hai aur last use different date ka tha to reset
     if (limitSetting.limitType === "perday" && userUsage.lastUsedDate && userUsage.lastUsedDate.toDateString() !== today) {
       userUsage.usedCount = 0;
     }
 
-    // 🔹 Limit check
+    //  Limit check
     if (userUsage.usedCount >= limitSetting.limitCount) {
       const message =
         limitSetting.limitType === "perday"
@@ -37,13 +35,13 @@ export const UseAI = async (req, res) => {
       return res.status(403).json({ success: false, message });
     }
 
-    // 🔹 Increment usage
+    //  Increment usage
     userUsage.usedCount += 1;
     userUsage.lastUsedDate = new Date();
     await userUsage.save();
 
-    // 🔹 Dummy AI Response (because prompt nahi diya)
-    const aiResponse = `✅ Hello ${username}, this is your AI usage #${userUsage.usedCount}`;
+    // Dummy AI Response (because prompt nahi diya)
+    const aiResponse = ` Hello ${username}, this is your AI usage #${userUsage.usedCount}`;
 
     return res.status(200).json({
       success: true,
