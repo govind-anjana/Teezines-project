@@ -24,10 +24,10 @@ export const Toggle = async (req, res) => {
     }
 
     await setting.save();
-    res.json({
+    res.status(200).json({
       success: true,
       logoutVisible: setting.logoutVisible,
-      message: `Logout visibility set to ${setting.logoutVisible}`,
+      message: `visibility set to ${setting.logoutVisible}`,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
