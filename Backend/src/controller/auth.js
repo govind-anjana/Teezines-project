@@ -2,6 +2,7 @@
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import dotenv from 'dotenv';
+import validator from 'validator'
 // import transporter from "../utils/miler.js"; // nodemailer transporter
 import User from "../model/UserModel.js";
 
@@ -30,6 +31,21 @@ export const register = async (req, res) => {
     // Validate input
     if (!username || !email || !dateOfBirth || !password) {
       return res.status(400).json({ message: "All fields are required" });
+    }
+if (!validator.isEmail(email))
+      return res.status(400).json({ message: "Invalid email format" });
+
+ const domain = email.split("@")[1].toLowerCase();
+    const commonDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "icloud.com"];
+
+    if (!commonDomains.includes(domain)) {
+      try {
+        const mx = await dns.resolveMx(domain);
+        if (!mx || mx.length === 0)
+          return res.status(400).json({ message: "Email domain is not valid" });
+      } catch (error) {
+        return res.status(400).json({ message: "Email domain does not exist" });
+      }
     }
 
     // Check if user already exists
@@ -70,17 +86,17 @@ export const forgetPassword = async (req, res) => {
     if (!email || !newPassword || !confirmPassword) {
       return res.status(400).json({ message: "All fields are required" });
     }
+    //  Find the user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     //  Check if passwords match
     if (newPassword !== confirmPassword) {
       return res.status(400).json({ message: "Confirm Passwords do not match" });
     }
 
-    //  Find the user
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
 
     //  Hash the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
