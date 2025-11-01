@@ -1,18 +1,24 @@
 import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema({
-  customerName: String,
-  email: String,
-  phone: String,
-  address: String,
-  city: String,
-  state: String,
-  pincode: String,
+  customerName: { type: String, required: true },
+  email: { type: String, required: true },
+  phone: { type: String, required: true },
+  address: { type: String, required: true },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  pincode: { type: String, required: true },
   items: [
-    { name: String, sku: String, quantity: Number, price: Number, weight: Number }
+    {
+      name: { type: String, required: true },
+      sku: String,
+      quantity: { type: Number, required: true },
+      price: { type: Number, required: true },
+      weight: { type: Number, default: 0.5 }
+    }
   ],
-  totalAmount: Number,
-  paymentMethod: { type: String, enum: ["COD", "Prepaid"] },
+  totalAmount: { type: Number, required: true },
+  paymentMethod: { type: String, enum: ["COD", "Prepaid"], required: true },
   status: { type: String, default: "Pending" },
   createdAt: { type: Date, default: Date.now },
 });
