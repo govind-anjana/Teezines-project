@@ -13,10 +13,10 @@ router.post("/signup",SignUpAdmin);
 // Admin login
 router.post("/login", AdminLogin);
 
-// Update admin by ID
+// Update admin by ID (Admin Only)
 router.put("/update/:id", verifyAdmin, UpdateAdmin);
 
-// Verify admin token
+// Verify admin token (Admin Only)
 router.get("/check", verifyAdmin, Check);
 
 

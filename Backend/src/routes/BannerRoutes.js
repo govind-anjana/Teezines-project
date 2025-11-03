@@ -7,7 +7,7 @@ const router=express.Router();
 // Get all banners
 router.get("/", BannerAll);
 
-
+// Add a banner
 router.post("/", upload.single("img"), BannerAdd);
 
 // Update a banner by ID (Admin only)

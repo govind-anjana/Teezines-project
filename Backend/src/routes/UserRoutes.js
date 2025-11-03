@@ -14,10 +14,6 @@ const   router = express.Router();
 //User All Data
 router.get("/",GetUser);
 
-
-// router.post("/send-otp")
-
-
 router.post("/send-otp", sendotp);
 // User Register route
 router.post("/register", register);
