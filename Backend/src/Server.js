@@ -11,6 +11,7 @@ import { typeDefs, resolvers } from "./graphql/schema.js";
 
 const PORT = process.env.PORT || 8000;
 
+// app.use(bodyParser.json())
 //  Connect Database
 ConnectionData();
 
