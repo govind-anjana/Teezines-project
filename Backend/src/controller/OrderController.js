@@ -11,7 +11,7 @@ export const createOrder = async (req, res) => {
 
     //   Create shipment on Shiprocket
     const shipData = await createShiprocketShipment(order);
-
+      console.log("Shiprocket Response:", shipData);
     //   Save shipment details in DB
     const shipment = new ShipmentModel({
       orderId: order._id,
