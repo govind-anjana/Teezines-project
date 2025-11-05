@@ -18,6 +18,7 @@ export const PromoCreate = async (req, res) => {
     const {
       code,
       discountValue,
+      startDate,
       expiryDate,
       usageLimit,
       applicableCategory,
@@ -29,10 +30,13 @@ export const PromoCreate = async (req, res) => {
     if (existingPromo)
       return res.status(400).json({ success: false, message: "Promo code already exists" });
 
+     //  Use provided startDate or current date
+    const start = startDate ? new Date(startDate) : new Date();
     //  Create new promo
     const promo = new PromoCodeModel({
       code,
       discountValue,
+      startDate: start,
       expiryDate,
       usageLimit,
       applicableCategory: applicableCategory || null,
@@ -61,6 +65,10 @@ export const Applypromo = async (req, res) => {
     const promo = await PromoCodeModel.findOne({ code });
     if (!promo || !promo.isActive)
       return res.status(400).json({ success: false, message: "Invalid promo code" });
+
+     // Check start date
+    if (promo.startDate && new Date() < new Date(promo.startDate))
+      return res.status(400).json({ success: false, message: "Promo is not active yet. It will be available soon!" });
 
     if (promo.expiryDate < new Date())
       return res.status(400).json({ success: false, message: "Promo code expired" });
@@ -113,10 +121,10 @@ await promo.save();
 
 export const PromoUpdate=async(req,res)=>{
   try {
-    const { code, discountValue, usageLimit,expiryDate, applicableCategory, applicableProduct } = req.body;
+    const { code, discountValue, usageLimit,
+      startDate,expiryDate, applicableCategory, applicableProduct } = req.body;
 
-    if (code === undefined && discountValue === undefined && usageLimit===undefined && expiryDate === undefined &&
-        applicableCategory === undefined && applicableProduct === undefined) {
+    if (code === undefined && discountValue === undefined && usageLimit===undefined && expiryDate === undefined && startDate === undefined && applicableCategory === undefined && applicableProduct === undefined) {
       return res.status(400).json({ message: "At least one field is required to update" });
     }
 
@@ -125,7 +133,7 @@ export const PromoUpdate=async(req,res)=>{
     if (discountValue !== undefined) updateData.discountValue = discountValue;
      if (usageLimit !== undefined) updateData.usageLimit = usageLimit;
     if (expiryDate !== undefined) updateData.expiryDate = expiryDate;
-
+   if (startDate !== undefined) updateData.startDate = new Date(startDate);
     if (applicableCategory !== undefined) {
       updateData.applicableCategory = applicableCategory; // null allowed
     }

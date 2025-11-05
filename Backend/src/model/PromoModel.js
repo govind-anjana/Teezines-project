@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 const promoCodeSchema = new mongoose.Schema({
   code: { type: String, required: true, unique: true },
   discountValue: { type: Number, required: true },
+  startDate: {
+    type: Date,
+    default: Date.now,
+  },
   expiryDate: { type: Date, required: true },
   usageLimit: { type: Number },
   usedCount: { type: Number, default: 0 },
