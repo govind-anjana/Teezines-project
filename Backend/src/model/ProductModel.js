@@ -10,7 +10,7 @@ const ProductSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
-    premium: { type: Number, default: 0},
+   originalPrice: { type: Number, default: 0},
     quantity: { type: Number, default: 1, min: 0 },
     img: [{ type: String }],
     sizes: [
