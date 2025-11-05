@@ -10,8 +10,7 @@ const ProductSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
-    
-    discount: { type: Number, default: 0, min: 0, max: 100 },
+    premium: { type: Number, default: 0},
     quantity: { type: Number, default: 1, min: 0 },
     img: [{ type: String }],
     sizes: [
@@ -20,7 +19,6 @@ const ProductSchema = new mongoose.Schema(
         stock: { type: Number, default: 0 },
       },
     ],
-    rating: { type: Number, min: 0, max: 5 },
     productDetails: { type: String },
     productDescription: { type: String },
   },

@@ -34,7 +34,7 @@ export const ProductById=async(req,res)=>{
 
 export const ProductAdd = async (req, res) => {
   try {
-    const { name, price, category, discount, sizes,rating, productDetails, productDescription } = req.body;
+    const { name, price, category, premium, sizes, productDetails, productDescription } = req.body;
 
     // Parse sizes if string
     let parsedSizes = [];
@@ -53,9 +53,8 @@ export const ProductAdd = async (req, res) => {
       name,
       price,
       category,
-      discount,
+      premium,
       sizes: parsedSizes,
-      rating,
       productDetails,
       productDescription,
       img: imageUrls,
@@ -82,9 +81,8 @@ export const ProductAdd = async (req, res) => {
       name,
       price,
       category,
-      discount,
+      premium,
       sizes,
-      rating,
       productDetails,
       productDescription,
     } = req.body;
@@ -119,9 +117,8 @@ export const ProductAdd = async (req, res) => {
       name,
       price,
       category,
-      discount,
+      premium,
       sizes: parsedSizes,
-      rating,
       productDetails,
       productDescription,
       img: imageUrls, // final image array
