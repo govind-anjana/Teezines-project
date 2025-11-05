@@ -159,3 +159,59 @@ export const ProductDelete = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
+
+export const BuyNow=async (req,res)=>{
+       try {
+    const { productId, selectedSize, quantity } = req.body;
+
+    // Validation
+    if (!productId || !selectedSize || !quantity) {
+      return res.status(400).json({
+        success: false,
+        message: "productId, selectedSize, and quantity are required",
+      });
+    }
+
+    // Find product
+    const product = await ProductModel.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    // Find size in product
+    const sizeIndex = product.sizes.findIndex(
+      (s) => s.size.toLowerCase() === selectedSize.toLowerCase()
+    );
+
+    if (sizeIndex === -1) {
+      return res.status(400).json({ success: false, message: "Invalid size selected" });
+    }
+
+    const sizeObj = product.sizes[sizeIndex];
+
+    // Check stock
+    if (sizeObj.stock < quantity) {
+      return res.status(400).json({
+        success: false,
+        message: `Only ${sizeObj.stock} left for size ${selectedSize}`,
+      });
+    }
+
+    // Reduce stock
+    product.sizes[sizeIndex].stock -= quantity;
+
+    // Save updated product (stock update ho jayega)
+    await product.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Order placed successfully for size ${selectedSize}`,
+      remainingStock: product.sizes[sizeIndex].stock,
+      product,
+    });
+  } catch (error) {
+    console.error("BuyNow Error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }   
+}
