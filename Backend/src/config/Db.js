@@ -6,7 +6,9 @@ dotenv.config();
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_ATLAS);
+    await mongoose.connect(process.env.MONGO_ATLAS,{
+  family: 4, // Force IPv4
+});
     console.log("MongoDB connected successfully");
   } catch (err) {
     console.error("MongoDB connection error:", err.message);

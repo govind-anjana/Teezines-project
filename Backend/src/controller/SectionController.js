@@ -39,14 +39,14 @@ export const SectionAdd = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 }
-export const SectionUpdate = async (req, res) => {
+ export const SectionUpdate = async (req, res) => {
   try {
     const { id } = req.params;
     const { section } = req.body;
 
     // Validation
     if (!section) {
-      return res.status(400).json({ message: "section name is required" });
+      return res.status(400).json({ message: "Section name is required" });
     }
 
     // Check if section exists
@@ -55,13 +55,22 @@ export const SectionUpdate = async (req, res) => {
       return res.status(404).json({ message: "Section not found" });
     }
 
-    // Update section
+    // Save old name (for matching in SectionProModel)
+    const oldSectionName = existing.section;
+
+    // Step 1: Update Section name
     existing.section = section;
-    const updatedSection= await existing.save();
+    const updatedSection = await existing.save();
+
+    // Step 2: Update section name in SectionProModel
+    await SectionProModel.updateMany(
+      { section: oldSectionName },
+      { section: section }
+    );
 
     res.status(200).json({
       success: true,
-      message: "Section updated successfully!",
+      message: "Section updated successfully in both collections!",
       data: updatedSection,
     });
   } catch (err) {

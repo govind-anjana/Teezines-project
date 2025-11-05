@@ -14,7 +14,6 @@ export const getShiprocketToken = async () => {
   });
 
   shiprocketToken = response.data.token;
-  console.log(" Shiprocket Token Generated");
   return shiprocketToken;
 };
 
@@ -24,17 +23,17 @@ export const createShiprocketShipment = async (order) => {
 
   const payload = {
     order_id: `ORD-${order._id}`,
-    order_date: new Date().toISOString(),
     pickup_location: "Primary", // Shiprocket panel me hona chahiye
     billing_customer_name: order.customerName,
-    billing_last_name: "",
     billing_address: order.address,
     billing_city: order.city,
     billing_pincode: order.pincode,
     billing_state: order.state,
     billing_country: "India",
-    billing_email: order.email,
+    order_date: new Date().toISOString(),
     billing_phone: order.phone,
+    billing_email: order.email,
+    billing_last_name: "",
     shipping_is_billing: true,
     order_items: order.items.map((item) => ({
       name: item.name,
@@ -50,7 +49,7 @@ export const createShiprocketShipment = async (order) => {
     height: 10,
     weight: 1,
   };
-
+console.log(" Shiprocket Payload Sent:", payload);
   const response = await axios.post(
     "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
     payload,
