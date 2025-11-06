@@ -124,6 +124,10 @@ export const UpdatePassword = async (req, res) => {
 export const UpdateProfile = async (req, res) => {
   try {
     const { id } = req.params;
+    //validation
+     if (!id || id === "null" || id === "undefined") {
+      return res.status(400).json({ success: false, message: "Valid user ID required" });
+    }
     const { username, phone, address, dateOfBirth } = req.body; 
     // Check if user exists
     const user = await User.findById(id);
