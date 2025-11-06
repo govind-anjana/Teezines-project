@@ -23,7 +23,7 @@ export const createShiprocketShipment = async (order) => {
 
   const payload = {
     order_id: `ORD-${order._id}`,
-    pickup_location: "Primary", // Shiprocket panel me hona chahiye
+    pickup_location: "Home", // Shiprocket panel me hona chahiye
     billing_customer_name: order.customerName,
     billing_address: order.address,
     billing_city: order.city,
