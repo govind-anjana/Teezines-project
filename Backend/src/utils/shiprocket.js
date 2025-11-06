@@ -39,6 +39,7 @@ export const createShiprocketShipment = async (order) => {
       name: item.name,
       sku: item.sku,
       units: item.quantity,
+      size:item.size,
       selling_price: item.price,
       weight: item.weight || 0.5,
     })),

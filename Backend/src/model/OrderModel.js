@@ -13,9 +13,10 @@ const OrderSchema = new mongoose.Schema({
       name: { type: String, required: true },
       sku: String,
       quantity: { type: Number, required: true },
+      size: { type: String, required: true },
       price: { type: Number, required: true },
-      weight: { type: Number, default: 0.5 }
-    }
+      weight: { type: Number, default: 0.5 },
+    },
   ],
   totalAmount: { type: Number, required: true },
   paymentMethod: { type: String, enum: ["COD", "Prepaid"], required: true },
