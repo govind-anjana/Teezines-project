@@ -2,7 +2,7 @@
 import express from 'express';
 
 // Import controller functions
-import { GetUser, UpdatePassword, UpdateProfile, UserLogin } from '../controller/authController.js';
+import { GetUser, GetUserById, UpdatePassword, UpdateProfile, UserLogin } from '../controller/authController.js';
 import { forgetPassword, register } from '../controller/auth.js';
 import { sendotp, VerifyOtp } from '../controller/authotp.js';
 // import { SendOtp } from '../controller/mailController.js';
@@ -14,6 +14,7 @@ const   router = express.Router();
 //User All Data
 router.get("/",GetUser);
 
+router.get("/:id",GetUserById);
 router.post("/send-otp", sendotp);
 // User Register route
 router.post("/register", register);
