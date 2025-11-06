@@ -93,24 +93,31 @@ export const UpdatePassword = async (req, res) => {
  */
 export const UpdateProfile = async (req, res) => {
   try {
-    const {id} = req.params;  
-    const { username, email, phone, address,dateOfBirth } = req.body;
-    if (!email)
-      return res.status(400).json({ message: "email are required" });
+    const { id } = req.params;
+    const { username, phone, address, dateOfBirth } = req.body; 
+    // Check if user exists
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
-    const updatedUser = await User.findByIdAndUpdate(
-     id,
-      { username, email, phone, address,dateOfBirth },
-      { new: true }
-    );
+    //  Update allowed fields only (email untouched)
+    user.username = username || user.username;
+    user.phone = phone || user.phone;
+    user.address = address || user.address;
+    user.dateOfBirth = dateOfBirth || user.dateOfBirth;
 
+    // Save updated profile
+    const updatedUser = await user.save();
+
+    // Step 4: Response
     res.status(200).json({
-      message: "Profile updated successfully",
+      success: true,
+      message: "Profile updated successfully (email cannot be changed)",
       user: updatedUser,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Update Profile Error:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
-
