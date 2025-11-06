@@ -1,5 +1,5 @@
 import express from 'express';
-import { BuyNow, GetProducts, ProductAdd, ProductById, ProductDelete, ProductUpdate } from '../controller/ProductController.js';
+import { BuyNow, GetProductCategory, GetProducts, ProductAdd, ProductById, ProductDelete, ProductUpdate } from '../controller/ProductController.js';
 import { verifyAdmin } from '../middleware/auth.js';
 import upload from '../middleware/upload.js';
 const router=express.Router();
@@ -9,6 +9,8 @@ router.get("/",GetProducts);
 
 //Get Product Id by Find
 router.get("/:id",ProductById);
+
+router.get("/category/:categoryName",GetProductCategory);
 
 // Add a product (Admin only)
 router.post("/",verifyAdmin, upload.array("img", 5), ProductAdd);

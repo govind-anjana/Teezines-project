@@ -28,6 +28,27 @@ export const ProductById=async(req,res)=>{
   }
 }
 
+export const GetProductCategory=async(req,res)=>{
+  try {
+    const categoryName = req.params.categoryName.toLowerCase(); // "Shirt" ya koi bhi category
+
+    const products = await ProductModel.find({ category: categoryName });
+
+    if (!products.length) {
+      return res.status(404).json({ message: "No products found in this category" });
+    }
+
+   res.status(200).json({
+  success: true,
+  message: products.length 
+           ? "Products fetched successfully" 
+           : `No products found in '${categoryName}' category`,
+  data: products
+});
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
 /**
  * Add a new product
 */
