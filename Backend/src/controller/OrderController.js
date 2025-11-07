@@ -1,4 +1,5 @@
 import axios from "axios";
+import mongoose from "mongoose";
 import OrderModel from "../model/OrderModel.js";
 import ShipmentModel from "../model/ShipmentModel.js";
 import { createShiprocketShipment } from "../utils/shiprocket.js";
@@ -12,7 +13,7 @@ export const createOrder = async (req, res) => {
 
     //   Create shipment on Shiprocket
     const shipData = await createShiprocketShipment(order);
-      console.log("Shiprocket Response:", shipData);
+      // console.log("Shiprocket Response:", shipData);
     //   Save shipment details in DB
     const shipment = new ShipmentModel({
       orderId: order._id,
@@ -102,70 +103,6 @@ export const GetSingleOrder = async (req, res) => {
     });
   }
 };
-export const UpdateOrder = async (req, res) => {
-  try {
-    const { id } = req.params; // order ID
-    const { orderData, shipmentData } = req.body; // fields to update
-
-    //  Update order details
-    const order = await OrderModel.findByIdAndUpdate(id, orderData, { new: true });
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
-    //  Update shipment if related data provided
-    let shipment = null;
-    if (shipmentData) {
-      shipment = await ShipmentModel.findOneAndUpdate(
-        { orderId: id },
-        shipmentData,
-        { new: true }
-      );
-    }
-        let shiprocketResponse = null;
-    if (order.shiprocket_order_id) {
-      const token = process.env.SHIPROCKET_TOKEN;
-
-      try {
-        const response = await axios.put(
-          `https://apiv2.shiprocket.in/v1/external/orders/update/${order.shiprocket_order_id}`,
-          {
-            ...orderData, // send updated fields
-            order_id: order.shiprocket_order_id,
-            pickup_location: order.pickup_location || "Home",
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        shiprocketResponse = response.data;
-      } catch (err) {
-        console.warn(" Shiprocket Update Failed:", err.response?.data || err.message);
-      }
-    }
-    res.status(200).json({
-      success: true,
-      message: "Order updated successfully",
-      order,
-      shipment,
-    });
-  } catch (error) {
-    console.error("Error updating order:", error.message);
-    res.status(500).json({
-      success: false,
-      message: "Failed to update order",
-      error: error.message,
-    });
-  }
-};
-
 export const DeleteOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -204,28 +141,36 @@ export const updateOrder1 = async (req, res) => {
     const { id } = req.params;
     const { orderData, shipmentData } = req.body;
 
-    // 1️⃣ Fetch the order
+    //  Check order exists
     const order = await OrderModel.findById(id);
-    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
 
-    // 2️⃣ Fetch the shipment (convert id to ObjectId)
-    const shipment = await ShipmentModel.findOne({ orderId: mongoose.Types.ObjectId(id) });
-    if (!shipment) return res.status(400).json({ success: false, message: "Shipment not created yet" });
+    //  Find linked shipment
+   const shipment = await ShipmentModel.findOne({ orderId: new mongoose.Types.ObjectId(id) });
+    if (!shipment) {
+      return res.status(400).json({ success: false, message: "Shipment not created yet" });
+    }
 
-    // 3️⃣ Restrict update if shipment is not Pending/Created
-    if (shipment.status !== "Pending" && shipment.status !== "Created") {
+    //  Restrict update when shipment is NEW / CREATED / PENDING
+    const restrictedStatuses = ["PENDING", "NEW", "CREATED"];
+    if (restrictedStatuses.includes(shipment.status.toUpperCase())) {
       return res.status(400).json({
         success: false,
-        message: `Cannot update order. Shipment status is "${shipment.status}"`,
+        message: `Order cannot be updated. Shipment status is "${shipment.status}".`,
       });
     }
 
-    // 4️⃣ Update local order
-    const updatedOrder = await OrderModel.findByIdAndUpdate(id, orderData, { new: true });
+    // Update order if data provided
+    let updatedOrder = order;
+    if (orderData && Object.keys(orderData).length > 0) {
+      updatedOrder = await OrderModel.findByIdAndUpdate(id, orderData, { new: true });
+    }
 
-    // 5️⃣ Update shipment if data provided
+    //  Update shipment if data provided
     let updatedShipment = shipment;
-    if (shipmentData) {
+    if (shipmentData && Object.keys(shipmentData).length > 0) {
       updatedShipment = await ShipmentModel.findOneAndUpdate(
         { orderId: mongoose.Types.ObjectId(id) },
         shipmentData,
@@ -233,14 +178,15 @@ export const updateOrder1 = async (req, res) => {
       );
     }
 
-    // 6️⃣ Update Shiprocket order if exists
+    //  Update Shiprocket order if linked
     let shiprocketResponse = null;
     if (order.shiprocket_order_id) {
       try {
         const token = await getShiprocketToken();
+
         const payload = {
           order_id: order.shiprocket_order_id,
-          pickup_location: "Home", // fixed pickup location
+          pickup_location: "Home",
           billing_customer_name: updatedOrder.customerName,
           billing_address: updatedOrder.address,
           billing_city: updatedOrder.city,
@@ -249,16 +195,16 @@ export const updateOrder1 = async (req, res) => {
           billing_email: updatedOrder.email,
           billing_phone: updatedOrder.phone,
           shipping_is_billing: true,
-          order_items: updatedOrder.items.map(item => ({
+          order_items: updatedOrder.items.map((item) => ({
             name: item.name,
             sku: item.sku,
             units: item.quantity,
             size: item.size,
             selling_price: item.price,
-            weight: item.weight || 0.5
+            weight: item.weight || 0.5,
           })),
           payment_method: updatedOrder.paymentMethod,
-          sub_total: updatedOrder.totalAmount
+          sub_total: updatedOrder.totalAmount,
         };
 
         const response = await axios.put(
@@ -266,22 +212,94 @@ export const updateOrder1 = async (req, res) => {
           payload,
           { headers: { Authorization: `Bearer ${token}` } }
         );
+
         shiprocketResponse = response.data;
       } catch (err) {
         console.warn("Shiprocket update failed:", err.response?.data || err.message);
       }
     }
 
-    // 7️⃣ Send response
+    //  Send success response
     res.status(200).json({
       success: true,
       message: "Order updated successfully",
       order: updatedOrder,
       shipment: updatedShipment,
-      shiprocketResponse
+      shiprocketResponse,
     });
   } catch (err) {
     console.error("Update Order Error:", err);
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+export const cancelOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // ✅ 1. Check if order exists
+    const order = await OrderModel.findById(id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    // ✅ 2. Find shipment linked with this order
+    const shipment = await ShipmentModel.findOne({
+      orderId: new mongoose.Types.ObjectId(id),
+    });
+     //  If already cancelled
+    if (order.status === "Cancelled" || shipment.status === "Cancelled") {
+      return res.status(400).json({ success: false, message: "Order and shipment are already cancelled." });
+    }
+
+    //  If Shiprocket status is not cancellable
+    if (shipment.status === "Delivered" || shipment.status === "In Transit") {
+      return res.status(400).json({
+        success: false,
+        message: "This order cannot be cancelled because it has already been shipped or delivered.",
+      });
+    }
+    // ✅ 3. Cancel shipment on Shiprocket (if shiprocketId exists)
+    if (shipment && shipment.shiprocketId) {
+      try {
+        const token = await getShiprocketToken();
+
+        const response = await axios.post(
+          "https://apiv2.shiprocket.in/v1/external/orders/cancel",
+          { ids: [shipment.shiprocketId] },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        // console.log("✅ Shiprocket cancel response:", response.data);
+
+        // ✅ 4. Update shipment in DB
+        shipment.status = "Cancelled";
+        await shipment.save();
+      } catch (err) {
+        console.error("⚠️ Shiprocket cancel failed:", err.response?.data || err.message);
+        return res.status(400).json({
+          success: false,
+          message: "Failed to cancel order on Shiprocket",
+          error: err.response?.data || err.message,
+        });
+      }
+    }
+
+    // ✅ 5. Update local order in MongoDB
+    order.status = "Cancelled";
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Order and shipment have been successfully cancelled on both the website and Shiprocket.",
+    });
+  } catch (error) {
+    console.error("Cancel Order Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while cancelling order",
+      error: error.message,
+    });
   }
 };

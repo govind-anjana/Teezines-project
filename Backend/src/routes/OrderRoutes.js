@@ -1,5 +1,5 @@
 import express from "express";
-import { createOrder, DeleteOrder, GetAllOrders, GetSingleOrder, UpdateOrder, updateOrder1 } from "../controller/OrderController.js";
+import { cancelOrder, createOrder, GetAllOrders, GetSingleOrder, updateOrder1 } from "../controller/OrderController.js";
 import { verifyAdmin } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -13,11 +13,9 @@ router.get("/",verifyAdmin,GetAllOrders);
 // Get single Orders by Id 
 router.get("/:id",GetSingleOrder);
 
-// Update a Orders by id (Admin Only)
-router.put("/:id",verifyAdmin,UpdateOrder);
- 
+// Update on Orders by id (Admin Only)
+router.put("/update/:id",verifyAdmin,updateOrder1);
 
-router.put("/update/:id",updateOrder1);
-// Delete a Orders by id (Admin Only)
-router.delete("/:id",verifyAdmin,DeleteOrder);
+// Cancel an Order by id (Admin Only)
+router.put("/cancel/:id",verifyAdmin,cancelOrder);
 export default router;
