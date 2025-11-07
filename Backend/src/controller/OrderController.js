@@ -103,40 +103,7 @@ export const GetSingleOrder = async (req, res) => {
     });
   }
 };
-export const DeleteOrder = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Find order first
-    const order = await OrderModel.findById(id);
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
-    // Delete related shipment
-    await ShipmentModel.deleteOne({ orderId: id });
-
-    // Delete the order itself
-    await OrderModel.findByIdAndDelete(id);
-
-    res.status(200).json({
-      success: true,
-      message: "Order and related shipment deleted successfully",
-    });
-  } catch (error) {
-    console.error("Error deleting order:", error.message);
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete order",
-      error: error.message,
-    });
-  }
-};
-
-export const updateOrder1 = async (req, res) => {
+export const updateOrder = async (req, res) => {
   try {
     const { id } = req.params;
     const { orderData, shipmentData } = req.body;
@@ -238,13 +205,13 @@ export const cancelOrder = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // ✅ 1. Check if order exists
+    // Check if order exists
     const order = await OrderModel.findById(id);
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    // ✅ 2. Find shipment linked with this order
+    //  Find shipment linked with this order
     const shipment = await ShipmentModel.findOne({
       orderId: new mongoose.Types.ObjectId(id),
     });
@@ -260,7 +227,7 @@ export const cancelOrder = async (req, res) => {
         message: "This order cannot be cancelled because it has already been shipped or delivered.",
       });
     }
-    // ✅ 3. Cancel shipment on Shiprocket (if shiprocketId exists)
+    // Cancel shipment on Shiprocket (if shiprocketId exists)
     if (shipment && shipment.shiprocketId) {
       try {
         const token = await getShiprocketToken();
@@ -271,9 +238,9 @@ export const cancelOrder = async (req, res) => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        // console.log("✅ Shiprocket cancel response:", response.data);
+        // console.log(" Shiprocket cancel response:", response.data);
 
-        // ✅ 4. Update shipment in DB
+        //  Update shipment in DB
         shipment.status = "Cancelled";
         await shipment.save();
       } catch (err) {
@@ -286,7 +253,7 @@ export const cancelOrder = async (req, res) => {
       }
     }
 
-    // ✅ 5. Update local order in MongoDB
+    //  Update local order in MongoDB
     order.status = "Cancelled";
     await order.save();
 
