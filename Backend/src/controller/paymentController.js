@@ -20,7 +20,7 @@ const razorpay = new Razorpay({
       return res.status(400).json({ success: false, message: "Amount is required" });
     }
     const options = {
-      amount,
+      amount:amount*100,
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
     };
