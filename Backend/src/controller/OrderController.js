@@ -7,18 +7,45 @@ import { getShiprocketToken } from "../utils/shiprocket.js";
 
 export const createOrder = async (req, res) => {
   try {
-
-    const { paymentType } = req.body;
+const {
+      customerName,
+      email,
+      phone,
+      address,
+      city,
+      state,
+      pincode,
+      items,
+      totalAmount,
+      paymentMethod,
+    } = req.body;
+   
 
     //  Block Cash on Delivery
-    if (paymentType === "COD" || paymentType === "Cash on Delivery") {
+    if (paymentMethod === "COD" || paymentMethod === "Cash on Delivery") {
       return res.status(400).json({
         success: false,
         message: "Cash on Delivery is not allowed. Please pay online.",
       });
     }
+
+      const totalWeight = items.reduce(
+      (sum, item) => sum + (item.weight || 0) * (item.quantity || 1),
+      0
+    );
+
     //   Create local order
-    const order = new OrderModel(req.body);
+    const order = new OrderModel({  customerName,
+      email,
+      phone,
+      address,
+      city,
+      state,
+      pincode,
+      items,
+      totalAmount,
+      paymentMethod,
+      totalWeight});
     await order.save();
 
     //   Create shipment on Shiprocket

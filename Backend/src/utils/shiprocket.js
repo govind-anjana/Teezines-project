@@ -20,6 +20,12 @@ export const getShiprocketToken = async () => {
 //  Create Shipment on Shiprocket
 export const createShiprocketShipment = async (order) => {
   const token = await getShiprocketToken();
+  const totalWeight =
+      order.totalWeight ||
+      order.items.reduce(
+        (sum, item) => sum + (item.weight || 0) * (item.quantity || 1),
+        0
+      );
 
   const payload = {
     order_id: `ORD-${order._id}`,
@@ -47,9 +53,10 @@ export const createShiprocketShipment = async (order) => {
     sub_total: order.totalAmount,
     length: 10,
     breadth: 10,
-    height: 10,
-    weight: 1,
+    height: 5,
+    weight:  totalWeight,
   };
+  // console.log(" Shiprocket payload weight (kg):", totalWeight);
 console.log(" Shiprocket Payload Sent:", payload);
   const response = await axios.post(
     "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
