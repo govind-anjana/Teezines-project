@@ -13,7 +13,7 @@ export const createOrder = async (req, res) => {
 
     //   Create shipment on Shiprocket
     const shipData = await createShiprocketShipment(order);
-      // console.log("Shiprocket Response:", shipData);
+    // console.log("Shiprocket Response:", shipData);
     //   Save shipment details in DB
     const shipment = new ShipmentModel({
       orderId: order._id,
@@ -38,13 +38,10 @@ export const createOrder = async (req, res) => {
   }
 };
 
-
-export const GetAllOrders=async(req,res)=>{
-   try {
+export const GetAllOrders = async (req, res) => {
+  try {
     // Find all orders and populate related shipment
-    const orders = await OrderModel.find()
-      .sort({ createdAt: -1 })
-      .lean();
+    const orders = await OrderModel.find().sort({ createdAt: -1 }).lean();
 
     // For each order, find its shipment details
     const ordersWithShipment = await Promise.all(
@@ -70,37 +67,92 @@ export const GetAllOrders=async(req,res)=>{
       error: error.message,
     });
   }
-}
-
-export const GetSingleOrder = async (req, res) => {
+};
+export const getOrderDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Find order by ID
+    //  Find the order
     const order = await OrderModel.findById(id);
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
+      return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    // Find shipment related to that order
+    //  Find shipment (if any)
     const shipment = await ShipmentModel.findOne({ orderId: id });
 
+    //  Determine final order status
+    let finalStatus = "Pending";
+
+    if (order.status === "Cancelled") {
+      finalStatus = "Cancelled";
+    } else if (shipment?.status === "Delivered" || order.status === "Completed") {
+      finalStatus = "Delivered";
+    } else if (shipment?.status) {
+      finalStatus = shipment.status;
+    }
+
+    //  Format order date
+    const orderDate = new Date(order.createdAt).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+    //  Delivery date logic
+    let deliveryDate = null;
+
+    if (finalStatus !== "Cancelled") {
+      if (shipment?.estimatedDelivery) {
+        deliveryDate = new Date(shipment.estimatedDelivery).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+      } else {
+        // Default: estimated +4 days
+        const est = new Date(order.createdAt);
+        est.setDate(est.getDate() + 4);
+        deliveryDate = est.toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+      }
+    }
+
+    //  Final response with full details
     res.status(200).json({
       success: true,
-      message: "Order fetched successfully",
-      order,
-      shipment: shipment || null,
+      message: "Order details with shipment & delivery info",
+      order: {
+        id: order._id,
+        customerName: order.customerName,
+        email: order.email,
+        phone: order.phone,
+        address: order.address,
+        city: order.city,
+        state: order.state,
+        pincode: order.pincode,
+        paymentMethod: order.paymentMethod,
+        totalAmount: order.totalAmount,
+        items: order.items,
+        status: finalStatus,
+        orderDate,
+        deliveryDate,
+        shipment: shipment
+          ? {
+              courier: shipment.courier,
+              trackingNumber: shipment.trackingNumber,
+              status: shipment.status,
+              estimatedDelivery: shipment.estimatedDelivery,
+            }
+          : null,
+      },
     });
   } catch (error) {
-    console.error("Error fetching order:", error.message);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch order",
-      error: error.message,
-    });
+    console.error("Error fetching order details:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 export const updateOrder = async (req, res) => {
@@ -111,13 +163,19 @@ export const updateOrder = async (req, res) => {
     //  Check order exists
     const order = await OrderModel.findById(id);
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
     //  Find linked shipment
-   const shipment = await ShipmentModel.findOne({ orderId: new mongoose.Types.ObjectId(id) });
+    const shipment = await ShipmentModel.findOne({
+      orderId: new mongoose.Types.ObjectId(id),
+    });
     if (!shipment) {
-      return res.status(400).json({ success: false, message: "Shipment not created yet" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Shipment not created yet" });
     }
 
     //  Restrict update when shipment is NEW / CREATED / PENDING
@@ -132,7 +190,9 @@ export const updateOrder = async (req, res) => {
     // Update order if data provided
     let updatedOrder = order;
     if (orderData && Object.keys(orderData).length > 0) {
-      updatedOrder = await OrderModel.findByIdAndUpdate(id, orderData, { new: true });
+      updatedOrder = await OrderModel.findByIdAndUpdate(id, orderData, {
+        new: true,
+      });
     }
 
     //  Update shipment if data provided
@@ -182,7 +242,10 @@ export const updateOrder = async (req, res) => {
 
         shiprocketResponse = response.data;
       } catch (err) {
-        console.warn("Shiprocket update failed:", err.response?.data || err.message);
+        console.warn(
+          "Shiprocket update failed:",
+          err.response?.data || err.message
+        );
       }
     }
 
@@ -200,7 +263,6 @@ export const updateOrder = async (req, res) => {
   }
 };
 
-
 export const cancelOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -208,23 +270,31 @@ export const cancelOrder = async (req, res) => {
     // Check if order exists
     const order = await OrderModel.findById(id);
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
 
     //  Find shipment linked with this order
     const shipment = await ShipmentModel.findOne({
       orderId: new mongoose.Types.ObjectId(id),
     });
-     //  If already cancelled
+    //  If already cancelled
     if (order.status === "Cancelled" || shipment.status === "Cancelled") {
-      return res.status(400).json({ success: false, message: "Order and shipment are already cancelled." });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Order and shipment are already cancelled.",
+        });
     }
 
     //  If Shiprocket status is not cancellable
     if (shipment.status === "Delivered" || shipment.status === "In Transit") {
       return res.status(400).json({
         success: false,
-        message: "This order cannot be cancelled because it has already been shipped or delivered.",
+        message:
+          "This order cannot be cancelled because it has already been shipped or delivered.",
       });
     }
     // Cancel shipment on Shiprocket (if shiprocketId exists)
@@ -244,7 +314,10 @@ export const cancelOrder = async (req, res) => {
         shipment.status = "Cancelled";
         await shipment.save();
       } catch (err) {
-        console.error("⚠️ Shiprocket cancel failed:", err.response?.data || err.message);
+        console.error(
+          "⚠️ Shiprocket cancel failed:",
+          err.response?.data || err.message
+        );
         return res.status(400).json({
           success: false,
           message: "Failed to cancel order on Shiprocket",
@@ -259,7 +332,8 @@ export const cancelOrder = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Order and shipment have been successfully cancelled on both the website and Shiprocket.",
+      message:
+        "Order and shipment have been successfully cancelled on both the website and Shiprocket.",
     });
   } catch (error) {
     console.error("Cancel Order Error:", error);
