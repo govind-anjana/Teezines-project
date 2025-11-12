@@ -5,6 +5,7 @@ import express from 'express';
 import { GetUser, GetUserById, UpdatePassword, UpdateProfile, UserLogin } from '../controller/authController.js';
 import { forgetPassword, register } from '../controller/auth.js';
 import { sendotp, VerifyOtp } from '../controller/authotp.js';
+import { verifyAdmin } from '../middleware/auth.js';
 // import { SendOtp } from '../controller/mailController.js';
 
 // import { registerUser } from '../controller/OtpController.js';
@@ -12,7 +13,7 @@ import { sendotp, VerifyOtp } from '../controller/authotp.js';
 // Create a router instance
 const   router = express.Router();
 //User All Data
-router.get("/",GetUser);
+router.get("/",verifyAdmin,GetUser);
 
 router.get("/:id",GetUserById);
 router.post("/send-otp", sendotp);

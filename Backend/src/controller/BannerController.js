@@ -65,13 +65,13 @@ export const BannerAll = async (req, res) => {
     const { productId, isActive } = req.body;
     const bannerId = req.params.id;
 
-    // 1️⃣ Find the banner
+    //  Find the banner
     const banner = await BannerModel.findById(bannerId);
     if (!banner) {
       return res.status(404).json({ message: "Banner not found" });
     }
 
-    // 2️⃣ Update product (if provided)
+    //  Update product (if provided)
     if (productId) {
       const productExists = await ProductModel.findById(productId);
       if (!productExists) {
@@ -80,18 +80,18 @@ export const BannerAll = async (req, res) => {
       banner.productId = productId;
     }
 
-    // 3️⃣ Update image (if uploaded)
+    //  Update image (if uploaded)
     if (req.file) {
       // multer-storage-cloudinary provides secure_url or path
       banner.img = req.file.path || req.file.secure_url;
     }
 
-    // 4️⃣ Update active status
+    //  Update active status
     if (isActive !== undefined) {
       banner.isActive = isActive === "true" || isActive === true;
     }
 
-    // 5️⃣ Save changes
+    //  Save changes
     const updatedBanner = await banner.save();
 
     res.status(200).json({

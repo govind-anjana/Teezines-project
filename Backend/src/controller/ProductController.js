@@ -1,4 +1,5 @@
 // controllers/ProductController.js
+import BannerModel from '../model/BannerModel.js';
 import ProductModel from '../model/ProductModel.js';
 
 /**
@@ -166,73 +167,82 @@ export const ProductAdd = async (req, res) => {
 
 export const ProductDelete = async (req, res) => {
   try {
-
-    //Find Product by Id and Delete
+    //  Find Product by Id and Delete
     const deleted = await ProductModel.findByIdAndDelete(req.params.id);
 
-    //If Product not Found
+    // If Product not Found
     if (!deleted)
       return res.status(404).json({ message: "Product not found" });
 
-    //Success Message
-    res.status(200).json({ message: "Product deleted successfully" });
+    //  Cleanup: Remove productId from related banners
+    await BannerModel.updateMany(
+      { productId: req.params.id },
+      { $unset: { productId: 1 } }
+    );
+
+    // Success Response
+    res
+      .status(200)
+      .json({ message: "Product deleted and related banners updated successfully" });
+
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
   }
 };
 
+// export const BuyNow=async (req,res)=>{
+//        try {
+//     const { productId, selectedSize, quantity } = req.body;
 
-export const BuyNow=async (req,res)=>{
-       try {
-    const { productId, selectedSize, quantity } = req.body;
+//     // Validation
+//     if (!productId || !selectedSize || !quantity) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "productId, selectedSize, and quantity are required",
+//       });
+//     }
 
-    // Validation
-    if (!productId || !selectedSize || !quantity) {
-      return res.status(400).json({
-        success: false,
-        message: "productId, selectedSize, and quantity are required",
-      });
-    }
+//     // Find product
+//     const product = await ProductModel.findById(productId);
+//     if (!product) {
+//       return res.status(404).json({ success: false, message: "Product not found" });
+//     }
 
-    // Find product
-    const product = await ProductModel.findById(productId);
-    if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
-    }
+//     // Find size in product
+//     const sizeIndex = product.sizes.findIndex(
+//       (s) => s.size.toLowerCase() === selectedSize.toLowerCase()
+//     );
 
-    // Find size in product
-    const sizeIndex = product.sizes.findIndex(
-      (s) => s.size.toLowerCase() === selectedSize.toLowerCase()
-    );
+//     if (sizeIndex === -1) {
+//       return res.status(400).json({ success: false, message: "Invalid size selected" });
+//     }
 
-    if (sizeIndex === -1) {
-      return res.status(400).json({ success: false, message: "Invalid size selected" });
-    }
+//     const sizeObj = product.sizes[sizeIndex];
 
-    const sizeObj = product.sizes[sizeIndex];
+//     // Check stock
+//     if (sizeObj.stock < quantity) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Only ${sizeObj.stock} left for size ${selectedSize}`,
+//       });
+//     }
 
-    // Check stock
-    if (sizeObj.stock < quantity) {
-      return res.status(400).json({
-        success: false,
-        message: `Only ${sizeObj.stock} left for size ${selectedSize}`,
-      });
-    }
+//     // Reduce stock
+//     product.sizes[sizeIndex].stock -= quantity;
 
-    // Reduce stock
-    product.sizes[sizeIndex].stock -= quantity;
+//     // Save updated product (stock update ho jayega)
+//     await product.save();
 
-    // Save updated product (stock update ho jayega)
-    await product.save();
-
-    return res.status(200).json({
-      success: true,
-      message: `Order placed successfully for size ${selectedSize}`,
-      remainingStock: product.sizes[sizeIndex].stock,
-      product,
-    });
-  } catch (error) {
-    console.error("BuyNow Error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }   
-}
+//     return res.status(200).json({
+//       success: true,
+//       message: `Order placed successfully for size ${selectedSize}`,
+//       remainingStock: product.sizes[sizeIndex].stock,
+//       product,
+//     });
+//   } catch (error) {
+//     console.error("BuyNow Error:", error);
+//     res.status(500).json({ success: false, message: "Internal server error" });
+//   }   
+// }
