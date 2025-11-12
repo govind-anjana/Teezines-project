@@ -26,10 +26,10 @@ let tempUsers = {};
 
 export const register = async (req, res) => {
   try {
-    const { username, email, dateOfBirth, password } = req.body;
+    const { username, email, dateOfBirth,phone, password } = req.body;
 
     // Validate input
-    if (!username || !email || !dateOfBirth || !password) {
+    if (!username || !email || !dateOfBirth || !phone || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 if (!validator.isEmail(email))
@@ -62,6 +62,7 @@ if (!validator.isEmail(email))
       username,
       email,
       dateOfBirth,
+      phone,
       password: hashedPassword,
       isVerified: true, // directly verified since no OTP
     });
