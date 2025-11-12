@@ -14,6 +14,7 @@ import paymentRoutes from './routes/PaymentRoutes.js'
 import orderRoutes from './routes/OrderRoutes.js'
 import aiRoutes from './routes/AiRoutes.js'
 import sectionRoutes from './routes/SectionRoutes.js'
+import contectRouter from './routes/ContectRoutes.js'
 const app = express()
 
 // Enable CORS for all routes
@@ -48,6 +49,7 @@ app.use("/promo-code",promoRoutes);
 app.use("/ai",aiRoutes)
 
 app.use("/orders",orderRoutes)
-// Export app to be used in server.js
+
+app.use("/contect",contectRouter);
 
 export default app;

@@ -4,10 +4,11 @@ import OrderModel from "../model/OrderModel.js";
 import ShipmentModel from "../model/ShipmentModel.js";
 import { createShiprocketShipment } from "../utils/shiprocket.js";
 import { getShiprocketToken } from "../utils/shiprocket.js";
+import ProductModel from "../model/ProductModel.js";
 
 export const createOrder = async (req, res) => {
-  try {
-const {
+   try {
+    const {
       customerName,
       email,
       phone,
@@ -19,23 +20,41 @@ const {
       totalAmount,
       paymentMethod,
     } = req.body;
-   
 
-    //  Block Cash on Delivery
-    if (paymentMethod === "COD" || paymentMethod === "Cash on Delivery") {
+    // Block COD
+    if (paymentMethod !== "Prepaid") {
       return res.status(400).json({
         success: false,
-        message: "Cash on Delivery is not allowed. Please pay online.",
+        message: "Only Prepaid orders are allowed. Please pay online.",
       });
     }
 
-      const totalWeight = items.reduce(
-      (sum, item) => sum + (item.weight || 0) * (item.quantity || 1),
-      0
-    );
+    //  Validate stock ---
+    for (const item of items) {
+      const product = await ProductModel.findById(item.productId);
+      if (!product) return res.status(404).json({ message: "Product not found" });
 
-    //   Create local order
-    const order = new OrderModel({  customerName,
+      const sizeObj = product.sizes.find((s) => s.size.toLowerCase() === item.size.toLowerCase());
+      if (!sizeObj) return res.status(400).json({ message: `Size ${item.size} not found` });
+
+      if (sizeObj.stock < item.quantity)
+        return res.status(400).json({ message: `Only ${sizeObj.stock} left for size ${item.size}` });
+    }
+
+    //  Reduce stock ---
+    for (const item of items) {
+      await ProductModel.updateOne(
+        { _id: item.productId, "sizes.size": item.size },
+        { $inc: { "sizes.$.stock": -item.quantity } }
+      );
+    }
+
+    //  Calculate total weight ---
+    const totalWeight = items.reduce((sum, item) => sum + (item.weight || 0.5) * item.quantity, 0);
+
+    // Create order ---
+    const order = new OrderModel({
+      customerName,
       email,
       phone,
       address,
@@ -45,13 +64,14 @@ const {
       items,
       totalAmount,
       paymentMethod,
-      totalWeight});
+      totalWeight,
+      status: "NEW",
+    });
+
     await order.save();
 
-    //   Create shipment on Shiprocket
+    //  Create shipment ---
     const shipData = await createShiprocketShipment(order);
-    // console.log("Shiprocket Response:", shipData);
-    //   Save shipment details in DB
     const shipment = new ShipmentModel({
       orderId: order._id,
       shiprocketId: shipData.order_id,
@@ -63,14 +83,15 @@ const {
 
     await shipment.save();
 
+    // Return response ---
     res.status(201).json({
       success: true,
-      message: "Order and Shipment created successfully!",
+      message: "Order and shipment created successfully!",
       order,
       shipment,
     });
   } catch (err) {
-    console.error(" Shiprocket Error:", err.response?.data || err.message);
+    console.error("Create Order Error:", err.response?.data || err.message);
     res.status(500).json({ success: false, message: err.message });
   }
 };
@@ -352,7 +373,7 @@ export const cancelOrder = async (req, res) => {
         await shipment.save();
       } catch (err) {
         console.error(
-          "⚠️ Shiprocket cancel failed:",
+          " Shiprocket cancel failed:",
           err.response?.data || err.message
         );
         return res.status(400).json({
