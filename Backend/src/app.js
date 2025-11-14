@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import session from 'express-session';
+import passport from 'passport';
 // Import User routes
 import authRoutes from './routes/UserRoutes.js'
 // Import Admin routes
@@ -15,12 +18,25 @@ import orderRoutes from './routes/OrderRoutes.js'
 import aiRoutes from './routes/AiRoutes.js'
 import sectionRoutes from './routes/SectionRoutes.js'
 import contectRouter from './routes/ContectRoutes.js'
-const app = express()
+
+dotenv.config();
+const app = express();
+
 
 // Enable CORS for all routes
 app.use(cors());
 // Parse incoming JSON requests
 app.use(express.json());
+
+app.use(
+  session({
+    secret: process.env.JWT_SECRET,  // JWT ya koi random string
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Use User routes with '/auth' prefix
 app.use("/auth", authRoutes);
