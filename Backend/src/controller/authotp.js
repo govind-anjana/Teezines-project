@@ -2,27 +2,27 @@
 
 
 // Import necessary modules
-import crypto from "crypto";
-import bcrypt from "bcryptjs";
-import dotenv from 'dotenv';
-import axios from "axios";
-import transporter from "../utils/miler.js"; // nodemailer transporter
-import User from "../model/UserModel.js";
+// import crypto from "crypto";
+// import bcrypt from "bcryptjs";
+// import dotenv from 'dotenv';
+// import axios from "axios";
+// import transporter from "../utils/miler.js"; // nodemailer transporter
+// import User from "../model/UserModel.js";
 
-dotenv.config()
+// dotenv.config()
 
 // ------------------ Helper Functions ------------------
-const otpStore = new Map();
-// Generate a 6-digit OTP
-function generateOtp() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
+// const otpStore = new Map();
+// // Generate a 6-digit OTP
+// function generateOtp() {
+//   return Math.floor(100000 + Math.random() * 900000).toString();
+// }
 
 
 // Hash the OTP using SHA256
-function hashOtp(otp) {
-  return crypto.createHash("sha256").update(otp).digest("hex");
-}
+// function hashOtp(otp) {
+//   return crypto.createHash("sha256").update(otp).digest("hex");
+// }
 
 // export const sendotp=async (req, res) => {
 //   try {
@@ -69,95 +69,95 @@ function hashOtp(otp) {
 // ------------------ Controllers ------------------
 let tempUsers = {}; 
 // User signup controller
-export const sendotp = async (req, res) => {
-  try {
-    // const { username, email, dateOfBirth, password } = req.body;
+// export const sendotp = async (req, res) => {
+//   try {
+//     // const { username, email, dateOfBirth, password } = req.body;
 
-    // if (!username || !email || !dateOfBirth || !password)
-    //   return res.status(400).json({ message: "All fields required" });
-    const {username,email, password} =req.body;
-    if(!username || !email || !password){
-      return res.status(400).json({message:"All fields required"});
-    }
+//     // if (!username || !email || !dateOfBirth || !password)
+//     //   return res.status(400).json({ message: "All fields required" });
+//     const {username,email, password} =req.body;
+//     if(!username || !email || !password){
+//       return res.status(400).json({message:"All fields required"});
+//     }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({ message: "Email already registered" });
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser)
+//       return res.status(400).json({ message: "Email already registered" });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const otp = generateOtp();
-    const otpHash = hashOtp(otp);
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     const otp = generateOtp();
+//     const otpHash = hashOtp(otp);
 
-    //  store temporarily instead of saving in DB
-    tempUsers[email] = {
-      username,
-      email,
-      // dateOfBirth,
-      password: hashedPassword,
-      otpHash,
-      otpExpiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
-    };
+//     //  store temporarily instead of saving in DB
+//     tempUsers[email] = {
+//       username,
+//       email,
+//       // dateOfBirth,
+//       password: hashedPassword,
+//       otpHash,
+//       otpExpiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+//     };
 
-    // send OTP email
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Verify your email - OTP",
-      html: `
-        <p>Hi ${username},</p>
-        <p>Your OTP for email verification is: <b>${otp}</b></p>
-        <p>This OTP will expire in 10 minutes.</p>
-      `,
-    });
+//     // send OTP email
+//     await transporter.sendMail({
+//       from: process.env.EMAIL_USER,
+//       to: email,
+//       subject: "Verify your email - OTP",
+//       html: `
+//         <p>Hi ${username},</p>
+//         <p>Your OTP for email verification is: <b>${otp}</b></p>
+//         <p>This OTP will expire in 10 minutes.</p>
+//       `,
+//     });
 
-    return res
-      .status(201)
-      .json({ message: "OTP sent to email. Please verify to complete registration." });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error", error: err.message });
-  }
-};
+//     return res
+//       .status(201)
+//       .json({ message: "OTP sent to email. Please verify to complete registration." });
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).json({ message: "Server error", error: err.message });
+//   }
+// };
 
 
    
 // Verify OTP controller
- export const VerifyOtp = async (req, res) => {
-  try {
-    const { email, otp } = req.body;
-    if (!email || !otp)
-      return res.status(400).json({ message: "Email and OTP required" });
-    const tempUser = tempUsers[email];
-    if (!tempUser)
-      return res.status(404).json({ message: "No pending registration found" });
+//  export const VerifyOtp = async (req, res) => {
+//   try {
+//     const { email, otp } = req.body;
+//     if (!email || !otp)
+//       return res.status(400).json({ message: "Email and OTP required" });
+//     const tempUser = tempUsers[email];
+//     if (!tempUser)
+//       return res.status(404).json({ message: "No pending registration found" });
 
-    if (tempUser.otpExpiresAt < Date.now())
-      return res.status(400).json({ message: "OTP expired. Please register again." });
+//     if (tempUser.otpExpiresAt < Date.now())
+//       return res.status(400).json({ message: "OTP expired. Please register again." });
 
-    const hashed = hashOtp(otp);
-    if (hashed !== tempUser.otpHash)
-      return res.status(400).json({ message: "Invalid OTP" });
+//     const hashed = hashOtp(otp);
+//     if (hashed !== tempUser.otpHash)
+//       return res.status(400).json({ message: "Invalid OTP" });
 
-    //  Save to database now
-    const user = new User({
-      username: tempUser.username,
-      email: tempUser.email,
-      dateOfBirth: tempUser.dateOfBirth,
-      password: tempUser.password,
-      isVerified: true,
-    });
+//     //  Save to database now
+//     const user = new User({
+//       username: tempUser.username,
+//       email: tempUser.email,
+//       dateOfBirth: tempUser.dateOfBirth,
+//       password: tempUser.password,
+//       isVerified: true,
+//     });
 
-    await user.save();
+//     await user.save();
 
-    // delete from temp storage
-    delete tempUsers[email];
+//     // delete from temp storage
+//     delete tempUsers[email];
 
-    return res.status(201).json({ message: "Email verified and user registered successfully!" });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error", error: err.message });
-  }
-};
+//     return res.status(201).json({ message: "Email verified and user registered successfully!" });
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).json({ message: "Server error", error: err.message });
+//   }
+// };
 
 // export const sendOtpForPasswordReset = async (req, res) => {
 //   try {

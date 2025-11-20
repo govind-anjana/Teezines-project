@@ -10,7 +10,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 // Import controller functions
 import { GetUser, GetUserById, UpdatePassword, UpdateProfile, UserLogin } from '../controller/authController.js';
 import { forgetPassword, register } from '../controller/auth.js';
-import { sendotp, VerifyOtp } from '../controller/authotp.js';
+// import {  VerifyOtp } from '../controller/authotp.js';
 import { verifyAdmin } from '../middleware/auth.js';
 // import { SendOtp } from '../controller/mailController.js';
 
@@ -22,13 +22,13 @@ const   router = express.Router();
 router.get("/",verifyAdmin,GetUser);
 
 router.get("/:id",GetUserById);
-router.post("/send-otp", sendotp);
+// router.post("/send-otp", sendotp);
 // User Register route
 router.post("/register", register);
 // router.post("/registers", registerUser);
 
 // Verify OTP route after signup
-router.post("/verify-otp", VerifyOtp);
+// router.post("/verify-otp", VerifyOtp);
 
 // User login route
 router.post("/login", UserLogin);
